@@ -130,7 +130,7 @@ class GeneradorDatos:
         # Genera una fecha en el pasado, asegurando que la persona tenga entre 18 y 65 años.
         return faker.date_of_birth(minimum_age=1, maximum_age=2000).strftime(formato)
         
-    def generar_password_segura(self, longitud: int = 10) -> str:
+    def generar_password_segura(self, longitud: int = 12) -> str:
         """
         Genera una contraseña fuerte que cumple con requisitos comunes (mayúsculas, minúsculas, dígitos, especial).
 

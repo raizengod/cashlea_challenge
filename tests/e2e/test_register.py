@@ -14,49 +14,57 @@ generador_datos = GeneradorDatos()
 
 def test_verificar_elementos_requeridos_presentes_register(set_up_RegisterPage: BasePage) -> None:
     """
-    [ID: RE-T001] Verificación de la presencia e integridad de los elementos de la Página de Registro.
+    [ID: RE-T001] Verificación de la integridad de la UI de la Página de Registro.
 
     Objetivo:
-        Verificar que los principales elementos del formulario de Registro (títulos, etiquetas,
-        campos de entrada y el botón principal) estén presentes, visibles y contengan
-        los textos esperados después de la navegación.
+        Asegurar que, al navegar a la página de Registro, todos los elementos 
+        críticos del formulario (títulos, etiquetas, campos de entrada y botón) 
+        estén presentes y visibles, y que el mensaje de feedback (flash message)
+        esté oculto por defecto.
 
-    Pasos:
+    Flujo:
         1. Navegar a la Página de Registro (gestionado por la fixture `set_up_RegisterPage`).
-        2. Validar el título principal de la página.
-        3. Validar el texto de la descripción de la página.
-        4. Verificar la visibilidad de todas las etiquetas y campos de entrada:
-           - Username, Password y Confirmar Password.
-        5. Verificar la visibilidad del botón de Registro.
-        6. Asegurar que el mensaje de *flash* de error/éxito (oculto por defecto) no esté visible.
+        2. Desplazamiento (Scroll) hasta el título de la página.
+        3. Validar el texto del título principal.
+        4. Validar el texto de la descripción de la página.
+        5. Verificar la visibilidad de las etiquetas y campos de: Username, Password, Confirm Password.
+        6. Verificar la visibilidad del botón de Registro.
+        7. Verificar que el mensaje de *flash* (éxito/error) no esté visible en el estado inicial.
     
-    Args:
+    Parámetros:
         set_up_RegisterPage (BasePage): Fixture que navega a la URL de Registro.
     """
-    # El fixture `set_up_RegisterPage` ya ha realizado la navegación y el manejo de obstáculos.
-    # Se asigna la instancia de BasePage a una variable local para mayor claridad.
+    # La fixture `set_up_RegisterPage` garantiza la navegación exitosa.
     base_page = set_up_RegisterPage
     
+    # PASO 1: Desplazamiento hasta el elemento principal de la página.
     base_page.scroll_hasta_elemento(base_page.register.labelRegister, "scroll_HastaLabelRegister", config.SCREENSHOT_DIR)
     
+    # PASO 2 y 3: Validar título y descripción de la página.
     base_page.element.verificar_texto_exacto(base_page.register.labelRegister, 
-                                             "Test Register page for Automation Testing Practice",
-                                             "verificar_textoExactoLabelTitulo", config.SCREENSHOT_DIR)
+                                            "Test Register page for Automation Testing Practice",
+                                            "verificar_textoExactoLabelTitulo", config.SCREENSHOT_DIR)
     
     texto_descripcion_esperado = (
         """Test Register page""")
     base_page.element.verificar_texto_contenido(base_page.register.labelDescriptionRegister, texto_descripcion_esperado,
-                                             "verificarTextoDescripciónRegister", config.SCREENSHOT_DIR
-                                             )
+                                              "verificarTextoDescripciónRegister", config.SCREENSHOT_DIR
+                                              )
     
+    # PASO 4, 5: Validar visibilidad de todos los elementos del formulario y el botón.
+    # Username
     base_page.element.validar_elemento_visible(base_page.register.labelUsernameRegister, "verificarLabelUsernameVisible", config.SCREENSHOT_DIR)
     base_page.element.validar_elemento_visible(base_page.register.txtUsernameRegister, "verificarCampoUsernameVisible", config.SCREENSHOT_DIR)
+    # Password
     base_page.element.validar_elemento_visible(base_page.register.labelPasswordRegister, "verificarLabelPasswordVisible", config.SCREENSHOT_DIR)
     base_page.element.validar_elemento_visible(base_page.register.txtPasswordRegister, "verificarCampoPasswordVisible", config.SCREENSHOT_DIR)
+    # Confirm Password
     base_page.element.validar_elemento_visible(base_page.register.labelConfirmPasswordRegister, "verificarLabelConfirmPasswordVisible", config.SCREENSHOT_DIR)
     base_page.element.validar_elemento_visible(base_page.register.txtConnfirPasswordRegister, "verificarCampoConfirmPasswordVisible", config.SCREENSHOT_DIR)
+    # Botón de Registro
     base_page.element.validar_elemento_visible(base_page.register.btnRegister, "verificarBotónRegisterVisible", config.SCREENSHOT_DIR)
     
+    # PASO 6: Validar que el mensaje de feedback (flash message) no está visible inicialmente.
     base_page.element.validar_elemento_no_visible(base_page.register.flashMessage, "verificarMensajeFlashNoVisible", config.SCREENSHOT_DIR)
     
 
@@ -364,9 +372,56 @@ def test_registrar_usurio_sin_confirm_password(set_up_RegisterPage: BasePage) ->
     # PASO 8: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
     
+def test_registrar_usuario_con_password_y_confirm_password_diferentes(set_up_RegisterPage: BasePage) -> None:
+    """
+    [ID: RE-T007] Prueba de Control de Errores: Registro con Contraseñas No Coincidentes.
+
+    Objetivo:
+        Verificar que el sistema impide el registro cuando los campos 'Password' y
+        'Confirm Password' no contienen el mismo valor, y valida que el mensaje
+        de error correspondiente se muestre correctamente.
+
+    Flujo:
+        1. Generar un set de datos de usuario válido.
+        2. Generar una segunda contraseña 'diferente' para el campo de confirmación.
+        3. Rellenar 'Username' y 'Password' con datos válidos.
+        4. Rellenar 'Confirm Password' con la contraseña 'diferenteConfirmacion'.
+        5. Intentar hacer clic en el botón de Registro.
+        6. **Validación:** Verificar que el mensaje de error "Passwords do not match." es visible.
+        7. **Validación:** Verificar que la URL no cambia, confirmando que el usuario permanece en la página de registro.
+
+    Parámetros:
+        set_up_RegisterPage (BasePage): Fixture que navega a la página de Registro.
+    """
+    # El fixture `set_up_RegisterPage` asegura la navegación exitosa a la página de Registro.
+    base_page = set_up_RegisterPage
+    
+    # PASO 1: Generar un set de datos de usuario válidos y una contraseña diferente.
+    datos_usuario = generador_datos.generar_usuario_valido()
+    # Se genera una contraseña fuerte, pero garantizando que sea distinta a la principal.
+    diferenteConfirmacion = generador_datos.generar_password_segura()
+    
+    # PASO 2: Rellenar los campos Username, Password y Confirm Password (con el valor diferente).
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    # Rellenar campo 'Username'
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", config.SCREENSHOT_DIR)
+    # Rellenar campo 'Password'
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
+    # Rellenar campo 'Confirm Password' con una contraseña diferente
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, diferenteConfirmacion, "escribir_campoConfirmPasswordDiferente", config.SCREENSHOT_DIR)
+    
+    # PASO 3: Proceder con registro.
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterConContrasenasDiferentes", config.SCREENSHOT_DIR)
+    
+    # PASO 4: Validar mensaje de error de que las contraseñas no coinciden.
+    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "Passwords do not match.", "verificar_MensajeErrorPasswordDirefrentes", config.SCREENSHOT_DIR)
+    
+    # PASO 5: Validar que se permanece en la misma pantalla de registro.
+    base_page.navigation.validar_url_actual(config.REGISTER_URL)
+    
 def test_cerrar_mensaje_flash(set_up_RegisterPage: BasePage) -> None:
     """
-    [ID: RE-T007] Verificación de la funcionalidad de cerrar el Mensaje Flash de Error.
+    [ID: RE-T008] Verificación de la funcionalidad de cerrar el Mensaje Flash de Error.
 
     Objetivo:
         Probar la capacidad del usuario para descartar o cerrar un mensaje de 
