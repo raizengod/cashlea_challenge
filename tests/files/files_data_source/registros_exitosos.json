@@ -1,18 +1,29 @@
 [
     {
-        "username": "baezajuliana249",
-        "nombre": "Eutimio",
-        "apellido": "Molins",
-        "email": "carreteroclara@alcantara.com",
-        "password": "P9F$S*mx+j(N",
+        "username": "adelina41736",
+        "nombre": "Maricruz",
+        "apellido": "Zamora",
+        "email": "igalindo@gmail.com",
+        "password": "W5V&vdsE0LHZ",
+        "confirmar_password": "W5V&vdsE0LHZ",
         "tipo_dato": "Válido"
     },
     {
-        "username": "ynavarro356",
-        "nombre": "Juana",
-        "apellido": "Alarcón",
-        "email": "mariscalaurelio@yahoo.com",
-        "password": "p(W^mdu_&)8G",
+        "username": "samanta15396",
+        "nombre": "Ruth",
+        "apellido": "Silva",
+        "email": "flastra@inversiones.es",
+        "password": "m7FUa5ed*CIF",
+        "confirmar_password": "m7FUa5ed*CIF",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "maciassarita605",
+        "nombre": "Elena",
+        "apellido": "Solana",
+        "email": "emilia67@gmail.com",
+        "password": "2Tq(uBue#^o1",
+        "confirmar_password": "2Tq(uBue#^o1",
         "tipo_dato": "Válido"
     }
 ]

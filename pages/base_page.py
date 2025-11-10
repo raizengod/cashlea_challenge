@@ -24,8 +24,8 @@ from utils.test_helpers import _registrar_paso_ejecutado
 
 # Asegúrate de importar la clase de localizadores
 from locators.locator_home import HomeLocatorsPage
-from locators.locator_signup import SignUpLocatorsPage
-from locators.locator_signin import SignInLocatorsPage
+from locators.locator_register import RegisterLocatorsPage
+from locators.locator_login import LoginLocatorsPage
 from locators.locator_webinput import WebInputsLocatorsPage
 
 class BasePage:
@@ -79,8 +79,8 @@ class BasePage:
         
         # --- Instancia de la clase de localizadores de la página de inicio ---
         self.home = HomeLocatorsPage(self.page)
-        self.signup = SignUpLocatorsPage(self.page)
-        self.signin = SignInLocatorsPage(self.page)
+        self.register = RegisterLocatorsPage(self.page)
+        self.login = LoginLocatorsPage(self.page)
         self.webinputs = WebInputsLocatorsPage(self.page)
         
     #2- Función para generar el nombre de archivo con marca de tiempo

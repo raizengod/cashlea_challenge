@@ -1,24 +1,19 @@
 from playwright.sync_api import Page
 
-class SignUpLocatorsPage:
+class LoginLocatorsPage:
     
     def __init__(self, page: Page):
         self.page = page
         
-    #Selector label titulo sing up
+    #Selector label titulo sing in
     @property
-    def labelSingUp(self):
-        return self.page.get_by_role("heading", name="Sign up")
+    def labelSingIn(self):
+        return self.page.get_by_role("heading", name="Sign in")
     
-    #Selector link Have an account
+    #Selector link Need an account
     @property
-    def linkHaveAnAccount(self):
-        return self.page.get_by_role("link", name="Have an account?")
-    
-    #Selector campo username
-    @property
-    def txtBoxUserName(self):
-        return self.page.get_by_role("textbox", name="Username")
+    def linkNeedAnAccount(self):
+        return self.page.get_by_role("link", name="Need an account?")
     
     #Selector campo email
     @property
@@ -30,10 +25,10 @@ class SignUpLocatorsPage:
     def txtBoxPassword(self):
         return self.page.get_by_role("textbox", name="Password")
     
-    #Selector botón sign up
+    #Selector botón Sign In
     @property
-    def btnSignUp(self):
-        return self.page.get_by_role("button", name="Sign up")
+    def btnSignIn(self):
+        return self.page.get_by_role("button", name="Sign in")
     
     #Selector mensaje de error
     @property
