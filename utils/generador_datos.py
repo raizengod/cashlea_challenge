@@ -10,10 +10,10 @@ class GeneradorDatos:
     """
     Clase que utiliza la librería Faker para generar datos de prueba:
     tanto válidos como inválidos, comúnmente requeridos en pruebas 
-    de registro y login.
+    de registro, login, formularios y entradas de datos.
     """
 
-    # --- Generación de Datos Válidos ---
+    # --- Generación de Datos Válidos (Original) ---
     
     def generar_usuario_valido(self) -> dict:
         """
@@ -53,7 +53,7 @@ class GeneradorDatos:
             "tipo_dato": "Válido"
         }
 
-    # --- Generación de Datos Inválidos ---
+    # --- Generación de Datos Inválidos (Original) ---
 
     def generar_datos_invalidos(self) -> dict:
         """
@@ -65,16 +65,13 @@ class GeneradorDatos:
         """
         
         # 1. Username Inválido (Ej: Contiene espacios y un símbolo no permitido)
-        # Esto fallará si el sistema solo acepta alfanuméricos y guiones/puntos.
         username_invalido = f"{faker.word()} {faker.word()}!"
         
         # 2. Email Inválido (Ej: No contiene el símbolo '@')
-        # Tomamos un email normal y le quitamos el '@' y el dominio.
         email_base = faker.user_name()
         email_invalido = f"{email_base}dominio-invalido-com" # Falta el '@'
         
         # 3. Password Inválida (Ej: Contraseña muy corta)
-        # La mayoría de los sistemas requieren al menos 8 caracteres.
         password_invalida = faker.password(length=random.randint(1, 4), special_chars=False)
         
         return {
@@ -83,3 +80,61 @@ class GeneradorDatos:
             "password": password_invalida,
             "tipo_dato": "Inválido"
         }
+
+    # --- Nuevos Métodos de Generación Específica ---
+    
+    def generar_numero_aleatorio(self, digitos: int = 5) -> int:
+        """
+        Genera un número entero aleatorio.
+
+        Args:
+            digitos (int): La cantidad de dígitos que tendrá el número.
+
+        Returns:
+            int: Un número entero aleatorio.
+        """
+        # Genera un número de 5 dígitos (o la cantidad especificada)
+        return faker.random_int(min=10**(digitos-1), max=(10**digitos)-1)
+
+    def generar_texto_largo(self, parrafos: int = 2) -> str:
+        """
+        Genera texto de prueba (párrafos) para campos de texto largos (ej. comentarios, descripciones).
+
+        Args:
+            parrafos (int): La cantidad de párrafos a generar.
+
+        Returns:
+            str: Una cadena de texto con la cantidad de párrafos solicitada.
+        """
+        return faker.paragraphs(nb=parrafos)
+        
+    def generar_fecha_nacimiento(self, formato: str = "%Y-%m-%d") -> str:
+        """
+        Genera una fecha de nacimiento válida (entre 18 y 65 años atrás).
+
+        Args:
+            formato (str): El formato de salida de la fecha (ej. "AAAA-MM-DD").
+
+        Returns:
+            str: Una fecha de nacimiento formateada.
+        """
+        # Genera una fecha en el pasado, asegurando que la persona tenga entre 18 y 65 años.
+        return faker.date_of_birth(minimum_age=1, maximum_age=2000).strftime(formato)
+        
+    def generar_password_segura(self, longitud: int = 10) -> str:
+        """
+        Genera una contraseña fuerte que cumple con requisitos comunes (mayúsculas, minúsculas, dígitos, especial).
+
+        Args:
+            longitud (int): Longitud deseada de la contraseña.
+
+        Returns:
+            str: Una contraseña fuerte.
+        """
+        return faker.password(
+            length=longitud, 
+            special_chars=True, 
+            digits=True, 
+            upper_case=True, 
+            lower_case=True
+        )

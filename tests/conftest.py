@@ -271,6 +271,52 @@ def set_up_Home(base_page: BasePage) -> BasePage:
         # Se puede lanzar una excepción o marcar un fallo en el setup
         raise
     
+@pytest.fixture
+@allure.epic("Web Input Tests")
+@allure.feature("Módulo de Formularios y Entradas")
+@allure.story("Pre-condición: Navegación a Web Input Examples")
+def set_up_WebInputs(base_page: BasePage) -> BasePage:
+    """
+    Fixture de pre-condición para las pruebas específicas de la página 'Web Input Examples'.
+    
+    Este fixture configura el entorno, asegurando que el navegador esté abierto y
+    posicionado en la URL de 'Web Input Examples' antes de que el test comience. 
+    
+    Realiza las siguientes acciones clave:
+    1. Navega a la URL base de la aplicación.
+    2. Valida el título de la página principal.
+    3. Navega a la sección 'Web Input Examples' haciendo clic en el enlace.
+    4. Valida que la URL actual coincida con la URL esperada para Web Inputs.
+
+    Args:
+        base_page (BasePage): Instancia de la clase BasePage, lista para la interacción.
+
+    Returns:
+        BasePage: La instancia de BasePage ya inicializada y configurada, posicionada
+                  en la página 'Web Input Examples' lista para las pruebas.
+    """
+    logger.info("SETUP: Ejecutando set_up_WebInputs - Navegación y validación inicial.")
+    try:
+        # Navega a la URL base
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR)
+    
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR)
+        
+        # Scroll y clic al enlace para ingresar a Web Input
+        base_page.scroll_hasta_elemento(base_page.home.linkWebInput, "scroll_HastaWebInput", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.home.linkWebInput, "clic_ingresarAWebInput", config.SCREENSHOT_DIR)
+        
+        # Valida que haya ingresado correctamente a la página
+        base_page.navigation.validar_url_actual(config.WEBINPUT_URL)
+        
+        logger.info("\nSETUP: set_up_WebInputs completado con éxito.")
+        # Retorna la instancia de BasePage para que el test pueda comenzar sus acciones.
+        return base_page
+    except Exception as e:
+        logger.error(f"\nError crítico durante el SETUP de set_up_WebInputs: {e}", exc_info=True)
+        # Se puede lanzar una excepción o marcar un fallo en el setup
+        raise
+    
 # --- HOOKS DE PYTEST PARA REPORTES Y ACCIONES POST-TEST ---
 @pytest.fixture(scope="function") 
 def test_steps(request) -> Generator[list[str], None, None]:
