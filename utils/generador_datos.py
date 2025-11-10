@@ -17,10 +17,10 @@ class GeneradorDatos:
     
     def generar_usuario_valido(self) -> dict:
         """
-        Genera un conjunto completo de datos de usuario válidos (username, email, password).
+        Genera un conjunto completo de datos de usuario válidos (username, email, password, confirmar_password).
 
         Returns:
-            dict: Diccionario con las claves 'username', 'email' y 'password'.
+            dict: Diccionario con las claves 'username', 'email', 'password' y 'confirmar_password'.
         """        
         nombre = faker.first_name()
         apellido = faker.last_name()
@@ -44,12 +44,16 @@ class GeneradorDatos:
             lower_case=True
         )
         
+        # Confirmar_password debe ser igual a password para ser válido
+        confirmar_password = password
+        
         return {
             "username": username,
             "nombre": nombre,
             "apellido": apellido,
             "email": email,
             "password": password,
+            "confirmar_password": confirmar_password,
             "tipo_dato": "Válido"
         }
 
@@ -58,10 +62,10 @@ class GeneradorDatos:
     def generar_datos_invalidos(self) -> dict:
         """
         Genera un conjunto de datos de usuario intencionalmente inválidos.
-        Útil para probar validaciones de formularios.
+        Útil para probar validaciones de formularios, incluyendo la discrepancia de contraseñas.
 
         Returns:
-            dict: Diccionario con datos inválidos para 'username', 'email' y 'password'.
+            dict: Diccionario con datos inválidos para 'username', 'email', 'password' y 'confirmar_password'.
         """
         
         # 1. Username Inválido (Ej: Contiene espacios y un símbolo no permitido)
@@ -74,10 +78,15 @@ class GeneradorDatos:
         # 3. Password Inválida (Ej: Contraseña muy corta)
         password_invalida = faker.password(length=random.randint(1, 4), special_chars=False)
         
+        # Confirmar_password debe ser diferente a password
+        # Generamos una contraseña fuerte que no coincida para forzar el fallo de validación
+        password_diferente = self.generar_password_segura(longitud=12) 
+        
         return {
             "username": username_invalido,
             "email": email_invalido,
             "password": password_invalida,
+            "confirmar_password": password_diferente,
             "tipo_dato": "Inválido"
         }
 
@@ -96,17 +105,17 @@ class GeneradorDatos:
         # Genera un número de 5 dígitos (o la cantidad especificada)
         return faker.random_int(min=10**(digitos-1), max=(10**digitos)-1)
 
-    def generar_texto_largo(self, parrafos: int = 2) -> str:
+    def generar_palabra_corta(self) -> str:
         """
-        Genera texto de prueba (párrafos) para campos de texto largos (ej. comentarios, descripciones).
-
-        Args:
-            parrafos (int): La cantidad de párrafos a generar.
+        Genera una cadena de texto simple, alfanumérica y corta.
+        Ideal para campos de entrada de texto cortos (ej. nombres, campos alfabéticos).
 
         Returns:
-            str: Una cadena de texto con la cantidad de párrafos solicitada.
+            str: Una cadena de texto con un máximo de 20 caracteres.
         """
-        return faker.paragraphs(nb=parrafos)
+        # Usamos faker.text(max_nb_chars=20) para generar texto aleatorio 
+        # y nos aseguramos de que no tenga el punto final ni espacios innecesarios.
+        return faker.text(max_nb_chars=20).replace('.', '').strip()
         
     def generar_fecha_nacimiento(self, formato: str = "%Y-%m-%d") -> str:
         """

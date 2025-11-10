@@ -138,23 +138,88 @@ def test_output_con_data(set_up_WebInputs: BasePage) -> None:
     base_page = set_up_WebInputs
     
     numerico = generador_datos.generar_numero_aleatorio()
-    alfabetico = generador_datos.generar_texto_largo()
+    alfabetico = generador_datos.generar_palabra_corta()
     password = generador_datos.generar_password_segura()
     fecha = generador_datos.generar_fecha_nacimiento()
     
     base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
     base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", config.SCREENSHOT_DIR)
-    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", config.SCREENSHOT_DIR)
-    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", config.SCREENSHOT_DIR)
-    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", config.SCREENSHOT_DIR)
     
     base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", config.SCREENSHOT_DIR)
     
     base_page.scroll_hasta_elemento(base_page.webinputs.outputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.verificar_valor_campo_numerico_int(base_page.webinputs.outputNumerico, numerico, "verificarValorOutputNuméricoVacío", config.SCREENSHOT_DIR)
-    base_page.element.verificar_valor_campo(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", config.SCREENSHOT_DIR)
-    base_page.element.verificar_valor_campo(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", config.SCREENSHOT_DIR)
-    base_page.element.verificar_valor_campo(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", config.SCREENSHOT_DIR)
     
+    
+def test_validar_clear_display_botón(set_up_WebInputs: BasePage) -> None:
+    """
+    [ID: WI-T004] Prueba el ciclo completo de ingreso, visualización y limpieza
+    de datos utilizando los botones 'Display Inputs' y 'Clear Inputs'.
+
+    Este test verifica que el flujo de datos funcione correctamente (input -> output)
+    y, posteriormente, valida que el botón 'Clear Inputs' restablezca el estado
+    tanto de los campos de entrada (vacíos) como de los campos de salida (no visibles).
+
+    Flujo:
+    1.  Genera datos de prueba aleatorios (numérico, alfabético, password, fecha).
+    2.  Rellena los 4 campos de entrada (input).
+    3.  Hace clic en 'Display Inputs'.
+    4.  **Validación de Salida (Display):** Verifica que los 4 campos de salida (output)
+        muestren el valor ingresado.
+    5.  Hace clic en el botón 'Clear Inputs'.
+    6.  **Validación de Limpieza (Input):** Verifica que los 4 campos de entrada estén vacíos.
+    7.  **Validación de Estado (Output):** Verifica que los 4 campos de salida regresen
+        al estado inicial, siendo no visibles.
+
+    Parámetros:
+        set_up_WebInputs (BasePage): Fixture que navega previamente a la URL de
+                                     'Web Input Examples' y proporciona la instancia
+                                     de la Page Object Model.
+
+    Retorna:
+        None: La prueba pasa si todos los pasos de validación (display y limpieza) son exitosos.
+    """
+    # El fixture `set_up_WebInputs` ya ha realizado la navegación y el manejo de obstáculos.
+    # Se asigna la instancia de BasePage a una variable local para mayor claridad.
+    base_page = set_up_WebInputs
+    
+    numerico = generador_datos.generar_numero_aleatorio()
+    alfabetico = generador_datos.generar_palabra_corta()
+    password = generador_datos.generar_password_segura()
+    fecha = generador_datos.generar_fecha_nacimiento()
+    
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
+    
+    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", config.SCREENSHOT_DIR)
+    
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", config.SCREENSHOT_DIR)
+    
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", config.SCREENSHOT_DIR)
+    
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnClearInputs, "clic_botónClearInputs", config.SCREENSHOT_DIR)
+    
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
+    
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputNumerico, "inputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputAlfabetico, "inputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputPassword, "inputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputFecha, "inputFechaVacío", config.SCREENSHOT_DIR)
+    
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputNumerico, "verificarCampoNuméricoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputAlfabetico, "verificarCampoAlfabéticoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputPassword, "verificarCampoPasswordNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputFecha, "verificarCampoFechaNoVisible", config.SCREENSHOT_DIR)
