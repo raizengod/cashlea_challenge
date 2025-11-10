@@ -16,8 +16,10 @@ AMBIENTE_POR_DEFECTO = "qa"
 # Estas variables deben estar definidas en el .env del ambiente seleccionado (ej: qa.env, dev.env).
 VARIABLES_ENTORNO_CRITICAS = [
     "BASE_URL", 
-    "SIGNIN_URL", 
-    "SIGNUP_URL", 
+    "LOGIN_URL", 
+    "REGISTER_URL",
+    "WEBINPUT_URL",
+    "DYNAMICTABLE_URL",
     # --- NUEVAS VARIABLES DE TRELLO ---
     "TRELLO_API_KEY",
     "TRELLO_API_TOKEN",
@@ -56,8 +58,10 @@ else:
 # --- 2. CONFIGURACIÓN DE URLS Y ASIGNACIÓN ---
 # Las variables de entorno se obtienen del proceso, ya sea desde el .env cargado o desde variables del sistema.
 BASE_URL = os.getenv("BASE_URL")
-SIGNIN_URL = os.getenv("SIGNIN_URL")
-SIGNUP_URL = os.getenv("SIGNUP_URL")
+LOGIN_URL = os.getenv("LOGIN_URL")
+REGISTER_URL = os.getenv("REGISTER_URL")
+WEBINPUT_URL = os.getenv("WEBINPUT_URL")
+DYNAMICTABLE_URL = os.getenv("DYNAMICTABLE_URL")
 # --- 2.1 NUEVAS VARIABLES DE TRELLO ---
 TRELLO_API_KEY = os.getenv("TRELLO_API_KEY")
 TRELLO_API_TOKEN = os.getenv("TRELLO_API_TOKEN")
@@ -193,8 +197,10 @@ def validar_variables_entorno_criticas():
     # Informar las variables cargadas (solo a nivel DEBUG para no saturar INFO)
     variables_a_debuggear = [
         ("BASE_URL", BASE_URL), 
-        ("SIGNIN_URL", SIGNIN_URL),
-        ("SIGNUP_URL", SIGNUP_URL), 
+        ("LOGIN_URL", LOGIN_URL),
+        ("REGISTER_URL", REGISTER_URL), 
+        ("WEBINPUT_URL", WEBINPUT_URL),
+        ("DYNAMICTABLE_URL", DYNAMICTABLE_URL),
         # --- NUEVAS VARIABLES DE TRELLO ---
         ("TRELLO_API_KEY", "***********" if TRELLO_API_KEY else None),
         ("TRELLO_API_TOKEN", "***********" if TRELLO_API_TOKEN else None),

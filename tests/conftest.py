@@ -259,14 +259,9 @@ def set_up_Home(base_page: BasePage) -> BasePage:
     logger.info("SETUP: Ejecutando set_up_Home - Navegación y validación inicial.")
     try:
         # Navega a la URL base
-        base_page.navigation.ir_a_url(config.BASE_URL, "inicio_test", config.SCREENSHOT_DIR)
-        
-        base_page.navigation.validar_titulo_de_web("Home — Conduit", "validar_titulo_de_web", config.SCREENSHOT_DIR)
-        
-        # Verificando que el home page se haya cargado correctamente
-        base_page.element.validar_elemento_visible(base_page.home.addHeader, "validar_addHeader_visible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.bannerHome, "validar_bannerHome_visible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.globalFeedHome, "validar_globalFeed_visible", config.SCREENSHOT_DIR)
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR)
+    
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR)
         
         logger.info("\nSETUP: set_up_Home completado con éxito.")
         # Retorna la instancia de BasePage para que el test pueda comenzar sus acciones.

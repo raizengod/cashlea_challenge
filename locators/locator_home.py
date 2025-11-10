@@ -5,32 +5,32 @@ class HomeLocatorsPage:
     def __init__(self, page: Page):
         self.page = page
         
-    #Selector app-header
+    #Selector contendor tipo de prueba
     @property
-    def addHeader (self):
-        return self.page.locator("app-header").get_by_role("link", name="conduit")
+    def contenedorTipoPrueba(self):
+        return self.page.get_by_text("Automation Testing Practice WebSite for QA and Developers Free Test Automation")
+        
+    #Selector link Wen input
+    @property
+    def linkWebInput(self):
+        return self.page.get_by_role("link", name="Web inputs")
     
-    #Selector link home
+    #Selector link Login
     @property
-    def linkHome(self):
-        return self.page.get_by_role("link", name="Home")
+    def linkTestLogin(self):
+        return self.page.get_by_role("link", name="Test Login Page")
     
-    #Selector botón sing in
+    #Selector link Register
     @property
-    def linkSingIn(self):
-        return self.page.get_by_role("link", name="Sign in")
+    def linkTestRegister(self):
+        return self.page.get_by_role("link", name="Test Register Page")
     
-    #Selector botón sing up
+    #Selector link Dynamic table
     @property
-    def linkSingUp(self):
-        return self.page.get_by_role("link", name="Sign up")
+    def linkDynamicTable(self):
+        return self.page.get_by_role("link", name="Dynamic Table")
     
-    #Selector banner home
+    #Selector menú superior hamburguesa
     @property
-    def bannerHome(self):
-        return self.page.locator("div").filter(has_text="conduit A place to share your").nth(3)
-    
-    #Selector encabezado global feed home
-    @property
-    def globalFeedHome(self):
-        return self.page.get_by_text("Your Feed Global Feed")
+    def menuSuperiorHamburguesa(self):
+        return self.page.get_by_role("button", name="Toggle navigation")
