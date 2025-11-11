@@ -1,0 +1,78 @@
+name: Playwright-Python_Nuevo-Framework
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Selecciona el ambiente de ejecución (e.g., dev, staging)'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+        - qa
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.9'
+      
+      - name: Instalar dependencias de Python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Instalar navegadores de Playwright
+        run: playwright install --with-deps
+
+      - name: Crear directorio de ambiente
+        run: mkdir -p environments
+
+      - name: Crear archivo de ambiente para el CI
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
+        run: |
+          case ${{ env.ENVIRONMENT }} in
+            dev)
+              echo "${{ secrets.DEV_ENV_VARS }}" > environments/dev.env
+              ;;
+            staging)
+              echo "${{ secrets.STAGING_ENV_VARS }}" > environments/staging.env
+              ;;
+            prod)
+              echo "${{ secrets.PROD_ENV_VARS }}" > environments/prod.env
+              ;;
+            *)
+              echo "${{ secrets.QA_ENV_VARS }}" > environments/qa.env
+              ;;
+          esac
+
+      - name: Ejecutar pruebas de Playwright
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
+        run: |
+          pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
+          
+      - name: Subir informe de pruebas de Playwright
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-raw-report
+          path: reports/html1/playwright_reporte.html
+          retention-days: 2
