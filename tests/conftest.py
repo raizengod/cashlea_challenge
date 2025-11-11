@@ -41,13 +41,13 @@ def generar_ids_browser(param):
     scope="function",
     params=[
             # Resoluciones de escritorio
-            #{"browser": "chromium", "resolution": {"width": 1920, "height": 1080}, "device": None},
+            {"browser": "chromium", "resolution": {"width": 1920, "height": 1080}, "device": None},
             {"browser": "firefox", "resolution": {"width": 1920, "height": 1080}, "device": None},
-            #{"browser": "webkit", "resolution": {"width": 1920, "height": 1080}, "device": None},
+            {"browser": "webkit", "resolution": {"width": 1920, "height": 1080}, "device": None},
             # Emulación de dispositivos móviles
-            #{"browser": "chromium", "device": "iPhone 12", "resolution": None},
-            #{"browser": "webkit", "device": "Pixel 5", "resolution": None},
-            #{"browser": "webkit", "device": "iPhone 12", "resolution": None}
+            {"browser": "chromium", "device": "iPhone 12", "resolution": None},
+            {"browser": "webkit", "device": "Pixel 5", "resolution": None},
+            {"browser": "webkit", "device": "iPhone 12", "resolution": None}
     ],
     ids=generar_ids_browser # <--- Usar la función para generar IDs
 )
@@ -72,11 +72,11 @@ def playwright_page(playwright: Playwright, request) -> Generator[Page, None, No
         # --- 1. Lanzamiento del Navegador ---
         logger.debug(f"\nLanzando navegador: {browser_type}")
         if browser_type == "chromium":
-            browser_instance = playwright.chromium.launch(headless=False, slow_mo=500)
+            browser_instance = playwright.chromium.launch(headless=True, slow_mo=500)
         elif browser_type == "firefox":
-            browser_instance = playwright.firefox.launch(headless=False, slow_mo=500)
+            browser_instance = playwright.firefox.launch(headless=True, slow_mo=500)
         elif browser_type == "webkit":
-            browser_instance = playwright.webkit.launch(headless=False, slow_mo=500)
+            browser_instance = playwright.webkit.launch(headless=True, slow_mo=500)
         else:
             # Capturar tipo de navegador no compatible
             raise ValueError(f"\nEl tipo de navegador '{browser_type}' no es compatible.")
