@@ -614,13 +614,14 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
     Retorna:
         None: La prueba pasa si se cumplen todas las validaciones de cierre de sesión.
     """
-    # La fixture `set_up_LoginPage` asegura la navegación exitosa a la página de Login.
+    # Inicializa la instancia de BasePage proporcionada por el fixture.
     base_page = set_up_LoginPage
     
+    # Define la ruta al archivo JSON de registros exitosos.
     file_path_json = os.path.join(config.SOURCE_FILES_DIR_DATA_SOURCE, "registros_exitosos.json")
     
     try:
-        # 1. Cargar datos de un usuario previamente registrado
+        # 1. Cargar datos de credenciales válidas desde el archivo JSON
         registros = base_page.file.leer_json(
             json_file_path=file_path_json, 
             nombre_paso="Leer datos de usuario válido para Login"
@@ -630,32 +631,34 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
             base_page.logger.error(f"\n❌ El archivo JSON no contiene una lista de datos válida en: {file_path_json}")
             pytest.fail("El archivo de registros de usuarios está vacío o en formato incorrecto.")
             
-        # 2. Seleccionar un usuario al azar
+        # 2. Seleccionar un usuario al azar para el Login
         datos_usuario = random.choice(registros)
         
-        # 3. Iniciar sesión para establecer la sesión activa
+        # 3. Iniciar sesión exitosamente con las credenciales cargadas
         base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
         base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", config.SCREENSHOT_DIR)
         base_page.element.rellenar_campo_de_texto(base_page.login.labelPasswordLogin, datos_usuario["password"], "Escribir_PasswordValida", config.SCREENSHOT_DIR)
         base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin", config.SCREENSHOT_DIR)
         
-        # 4. Validaciones Post-Login Exitoso (Dashboard)
+        # 4. Validaciones Post-Login: Confirmar el acceso al Dashboard
         base_page.navigation.validar_url_actual(config.USERDASHBOARD_URL)
         base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", config.SCREENSHOT_DIR)
         base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario['username']}!", "verificarSaludoAUsuario", config.SCREENSHOT_DIR)
         
-        # 5. Hacer clic en el botón de Logout
+        # 5. Ejecutar Logout: Clic en el botón 'Logout'
         base_page.element.hacer_clic_en_elemento(base_page.userdashboard.btnLogout, "clic_botónLogout", config.SCREENSHOT_DIR)
         
-        # 6. Validación de Redirección y Mensaje de Logout
+        # 6. Validación 1 (Redirección): Verificar regreso a la URL de Login
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
         
+        # Validación 2 (Mensaje de Éxito): Verificar el mensaje flash de cierre de sesión
         base_page.element.verificar_texto_exacto(base_page.login.flashMessage, 
                                                  "You logged out of the secure area!",
                                                  "verificarTextoMensajeFlash_Logout",
                                                  config.SCREENSHOT_DIR)
         
-        # 7. Validación del Estado del Formulario de Login
+        # 7. Validación 3 (Estado de la UI): Verificar que el formulario de Login esté listo
+        # Visibilidad de elementos del Login (formulario listo para nuevo acceso)
         base_page.element.validar_elemento_visible(base_page.login.labelUsernameLogin, "verificarLabelUsernameVisible", config.SCREENSHOT_DIR)
         base_page.element.validar_elemento_visible(base_page.login.txtUsernameLogin, "verificarCampoUsernameVisible", config.SCREENSHOT_DIR)
         base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "verificarCampoUsernameVacío", config.SCREENSHOT_DIR)
@@ -664,11 +667,12 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
         base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "verificarCampoPasswordVacío", config.SCREENSHOT_DIR)
         base_page.element.validar_elemento_visible(base_page.login.btnLogin, "verificarBotónLoginVisible", config.SCREENSHOT_DIR)
         
-        base_page.element.validar_elemento_no_visible(base_page.userdashboard.labelDescriptionDashboard, "verificarDescripciónNoVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_no_visible(base_page.userdashboard.btnLogout, "verificarLogoutNoVisible", config.SCREENSHOT_DIR)
+        # Verificación de que los elementos del Dashboard ya no están visibles
+        base_page.element.validar_elemento_no_visible(base_page.userdashboard.labelDescriptionDashboard, "verificarDescripciónDashboardNoVisible", config.SCREENSHOT_DIR)
+        base_page.element.validar_elemento_no_visible(base_page.userdashboard.btnLogout, "verificarLogoutButtonNoVisible", config.SCREENSHOT_DIR)
         
         
     except Exception as e:
-        # Manejo de error crítico si falla la carga o el procesamiento de datos iniciales
+        # Manejo de error crítico si falla la carga o el procesamiento de datos iniciales.
         base_page.logger.error(f"\n❌ Error al leer o procesar el archivo JSON: {e}")
         pytest.fail(f"Fallo crítico al cargar datos de credenciales. Error: {e}")
