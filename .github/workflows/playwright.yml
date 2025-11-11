@@ -63,16 +63,31 @@ jobs:
               ;;
           esac
 
-      - name: Ejecutar pruebas de Playwright
+      - name: Ejecutar pruebas de Playwright (Configuración desde pyproject.toml)
         env:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
           pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
           
       - name: Subir informe de pruebas de Playwright (Allure Results)
-        uses: actions/upload-artifact@v4
+        # Se ejecuta siempre (incluso si las pruebas fallan) para subir los resultados
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: allure-raw-results
-          path: allure-results
+          # Ruta configurada en pyproject.toml: reports/allure_results
+          path: reports/allure_results
           retention-days: 7
+
+      - name: Generar y Desplegar Reporte HTML de Allure
+        # Este paso utiliza los resultados brutos subidos y los convierte en un reporte HTML interactivo
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: reports/allure_results
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allure_title: Playwright Test Results
+          # Configura GitHub Pages para servir el reporte
+          subfolder: docs 
+          # Asegura que el reporte sea accesible a través de GitHub Pages
+          gh_pages: gh-pages
