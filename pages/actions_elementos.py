@@ -3615,18 +3615,18 @@ class ElementActions:
             try:
                 # Espera a que el elemento sea visible y luego intenta hacer clic
                 expect(obstaculo_locator).to_be_visible(timeout=timeout * 1000)
-                self.logger.info(f"✅ Se detectó '{nombre}'. Intentando hacer clic para cerrarlo.")
+                self.logger.info(f"\n✅ Se detectó '{nombre}'. Intentando hacer clic para cerrarlo.")
                 obstaculo_locator.click()
-                self.logger.info(f"✔ '{nombre}' ha sido cerrado exitosamente.")
+                self.logger.info(f"\n✔ '{nombre}' ha sido cerrado exitosamente.")
                 # Salimos del bucle si encontramos y cerramos un obstáculo, ya que no puede haber más
                 return True
                 
             except TimeoutError:
-                self.logger.debug(f"❌ '{nombre}' no se detectó. Continuando...")
+                self.logger.debug(f"\n❌ '{nombre}' no se detectó. Continuando...")
             except Exception as e:
-                self.logger.warning(f"❗ Ocurrió un error al intentar cerrar '{nombre}': {e}")
+                self.logger.warning(f"\n❗ Ocurrió un error al intentar cerrar '{nombre}': {e}")
                 
-        self.logger.info("✅ No se encontraron obstáculos conocidos o todos fueron manejados.")
+        self.logger.info("\n✅ No se encontraron obstáculos conocidos o todos fueron manejados.")
         return False
     
     @allure.step("Validar que el elemento '{selector}' esté vacío")

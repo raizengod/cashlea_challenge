@@ -18,6 +18,7 @@ from api_clients.trello_client import TrelloClient
 import inspect
 from utils.test_helpers import _registrar_paso_ejecutado, _buscar_evidencias_por_nombre_test, _obtener_video_evidencia
 from utils.report_handlers import _handle_trello_reporting, _handle_jira_reporting
+from locators.locator_obstaculoPantalla import ObstaculosLocators
 
 # Inicializar el logger con la configuración definida en config.py
 # El logger se usará a nivel de módulo
@@ -306,6 +307,10 @@ def set_up_WebInputs(base_page: BasePage) -> BasePage:
         base_page.scroll_hasta_elemento(base_page.home.linkWebInput, "scroll_HastaWebInput", config.SCREENSHOT_DIR)
         base_page.element.hacer_clic_en_elemento(base_page.home.linkWebInput, "clic_ingresarAWebInput", config.SCREENSHOT_DIR)
         
+        # Intenta cerrar cualquier obstáculo que pueda aparecer.
+        # Esto asegura que los elementos principales de la página no estén cubiertos.
+        base_page.element.manejar_obstaculos_en_pagina(ObstaculosLocators.LISTA_DE_OBSTACULOS)
+        
         # Valida que haya ingresado correctamente a la página
         base_page.navigation.validar_url_actual(config.WEBINPUT_URL)
         
@@ -349,6 +354,10 @@ def set_up_RegisterPage(base_page: BasePage) -> BasePage:
         base_page.scroll_hasta_elemento(base_page.home.linkTestRegister, "scroll_HastaRegisterPage", config.SCREENSHOT_DIR)
         base_page.element.hacer_clic_en_elemento(base_page.home.linkTestRegister, "clic_ingresarRegisterPage", config.SCREENSHOT_DIR)
         
+        # Intenta cerrar cualquier obstáculo que pueda aparecer.
+        # Esto asegura que los elementos principales de la página no estén cubiertos.
+        base_page.element.manejar_obstaculos_en_pagina(ObstaculosLocators.LISTA_DE_OBSTACULOS)
+        
         # Valida que haya ingresado correctamente a la página
         base_page.navigation.validar_url_actual(config.REGISTER_URL)
         
@@ -391,6 +400,10 @@ def set_up_LoginPage(base_page: BasePage) -> BasePage:
         # Scroll y clic al enlace para ingresar a la página de Registro
         base_page.scroll_hasta_elemento(base_page.home.linkTestLogin, "scroll_HastaLoginPage", config.SCREENSHOT_DIR)
         base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_ingresarLoginPage", config.SCREENSHOT_DIR)
+        
+        # Intenta cerrar cualquier obstáculo que pueda aparecer.
+        # Esto asegura que los elementos principales de la página no estén cubiertos.
+        base_page.element.manejar_obstaculos_en_pagina(ObstaculosLocators.LISTA_DE_OBSTACULOS)
         
         # Valida que haya ingresado correctamente a la página
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
