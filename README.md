@@ -49,20 +49,20 @@ El proyecto está organizado siguiendo el patrón Page Object Model (POM), garan
 Se automatizaron un total de **13 casos de prueba** cubriendo 3 flujos críticos con enfoque en casos positivos, negativos y de control de errores.
 
 ```
-ID      |        Flujo          |   Clave Cobertura         |   Notas de la Implementación
+ID    |        Flujo          |   Clave Cobertura         |   Notas de la Implementación
 =========================================================================================================
-F-01    |   Registro            |   100% (Casos Positivos   |   Se genera y persiste un usuario 
-        |   (test_register.py)  |   y Negativos)            |   único y válido en un archivo JSON 
-        |                       |                           |   para ser consumido en el flujo de Login.
+F-01  |   Registro            |   100% (Casos Positivos   |   Se genera y persiste un usuario 
+      |   (test_register.py)  |   y Negativos)            |   único y válido en un archivo JSON 
+      |                       |                           |   para ser consumido en el flujo de Login.
 ---------------------------------------------------------------------------------------------------------
-F-02    |   Autenticación       |   100% (Login Exitoso/    |   El test de Login Exitoso consume las 
-        |   (test_login.py)     |   Fallido, Logout)        |   credenciales válidas persistidas por 
-        |                       |                           |   el test de Registro, asegurando 
+F-02  |   Autenticación       |   100% (Login Exitoso/    |   El test de Login Exitoso consume las 
+      |   (test_login.py)     |   Fallido, Logout)        |   credenciales válidas persistidas por 
+      |                       |                           |   el test de Registro, asegurando 
 ---------------------------------------------------------------------------------------------------------
-F-03    |   Interacción         |   100% (Validación de     |   Verificación de que los campos de entrada 
-        |   (test_webinput.py)  |   Tipos de Datos)         |   aceptan y reflejan correctamente los tipos 
-        |                       |                           |   de datos (numérico, alfabético, password, 
-        |                       |                           |   fecha).
+F-03  |   Interacción         |   100% (Validación de     |   Verificación de que los campos de entrada 
+      |   (test_webinput.py)  |   Tipos de Datos)         |   aceptan y reflejan correctamente los tipos 
+      |                       |                           |   de datos (numérico, alfabético, password, 
+      |                       |                           |   fecha).
 ```
 
 ## ⚙️ Configuración de Variables de Entorno (Requisito Crítico)
@@ -160,7 +160,7 @@ Para ejecutar el suite de pruebas para un entorno específico (por ejemplo, QA),
 
 2.  **Ejecutar todas las pruebas con Pytest:**
     ```bash
-    pytest tests\e2e
+    pytest tests
     ```
 
 3.  **Ejecutar pruebas específicas (ejemplo):**

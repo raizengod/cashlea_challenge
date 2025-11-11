@@ -67,7 +67,7 @@ jobs:
         env:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
-          pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py -n 5 --alluredir=reports/allure_results
+          pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
           
       - name: Subir informe de pruebas de Playwright (Allure Results)
         # Se ejecuta siempre (incluso si las pruebas fallan) para subir los resultados
