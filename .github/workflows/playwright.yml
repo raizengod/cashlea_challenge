@@ -69,10 +69,10 @@ jobs:
         run: |
           pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
           
-      - name: Subir informe de pruebas de Playwright
+      - name: Subir informe de pruebas de Playwright (Allure Results)
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-raw-report
-          path: reports/html1/playwright_reporte.html
-          retention-days: 2
+          name: allure-raw-results
+          path: allure-results
+          retention-days: 7
