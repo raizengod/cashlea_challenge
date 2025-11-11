@@ -360,6 +360,49 @@ def set_up_RegisterPage(base_page: BasePage) -> BasePage:
         # Se puede lanzar una excepción o marcar un fallo en el setup
         raise
     
+@pytest.fixture
+@allure.epic("Login")
+@allure.feature("Módulo de Login")
+@allure.story("Pre-condición: Navegación a la Página de Login")
+def set_up_LoginPage(base_page: BasePage) -> BasePage:
+    """
+    Fixture de pre-condición para las pruebas específicas de la página de Login (Register Page).
+    
+    Este fixture configura el entorno:
+    1. Asegura que el navegador esté abierto.
+    2. Navega a la URL principal (Home).
+    3. Hace clic en el enlace para ingresar a la página de Login.
+    4. Valida que la URL actual coincida con la URL esperada para la página de Login.
+
+    Args:
+        base_page (BasePage): Instancia de la clase BasePage.
+
+    Returns:
+        BasePage: La instancia de BasePage inicializada y posicionada en la Página de Login, 
+                  lista para que el test comience.
+    """
+    logger.info("SETUP: Ejecutando set_up_LoginPage - Navegación y validación inicial.")
+    try:
+        # Navega a la URL base
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR)
+    
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR)
+        
+        # Scroll y clic al enlace para ingresar a la página de Registro
+        base_page.scroll_hasta_elemento(base_page.home.linkTestLogin, "scroll_HastaLoginPage", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_ingresarLoginPage", config.SCREENSHOT_DIR)
+        
+        # Valida que haya ingresado correctamente a la página
+        base_page.navigation.validar_url_actual(config.LOGIN_URL)
+        
+        logger.info("\nSETUP: set_up_LoginPage completado con éxito.")
+        # Retorna la instancia de BasePage para que el test pueda comenzar sus acciones.
+        return base_page
+    except Exception as e:
+        logger.error(f"\nError crítico durante el SETUP de set_up_LoginPage: {e}", exc_info=True)
+        # Se puede lanzar una excepción o marcar un fallo en el setup
+        raise
+    
 # --- HOOKS DE PYTEST PARA REPORTES Y ACCIONES POST-TEST ---
 @pytest.fixture(scope="function") 
 def test_steps(request) -> Generator[list[str], None, None]:

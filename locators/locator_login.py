@@ -5,32 +5,47 @@ class LoginLocatorsPage:
     def __init__(self, page: Page):
         self.page = page
         
-    #Selector label titulo sing in
+    #Selector label titulo Login
     @property
-    def labelSingIn(self):
-        return self.page.get_by_role("heading", name="Sign in")
+    def labelLogin(self):
+        return self.page.get_by_role("heading", name="Test Login page for")
     
-    #Selector link Need an account
+    #Selector label decripción de login
     @property
-    def linkNeedAnAccount(self):
-        return self.page.get_by_role("link", name="Need an account?")
+    def labelDescriptionLogin(self):
+        return self.page.locator("#core div").filter(has_text="This Test Login page is").nth(3)
     
-    #Selector campo email
+    #Selector label username login
     @property
-    def txtBoxEmail(self):
-        return self.page.get_by_role("textbox", name="Email")
+    def labelUsernameLogin(self):
+        return self.page.locator("#login").get_by_text("Username")
     
-    #Selector campo password
+    #Selector campo username login
     @property
-    def txtBoxPassword(self):
+    def txtUsernameLogin(self):
+        return self.page.get_by_role("textbox", name="Username")
+    
+    #Selector label password login
+    @property
+    def labelPasswordLogin(self):
+        return self.page.locator("#login").get_by_text("Password")
+    
+    #Selector campo password login
+    @property
+    def txtPasswordLogin(self):
         return self.page.get_by_role("textbox", name="Password")
     
-    #Selector botón Sign In
+    #Selector botón login
     @property
-    def btnSignIn(self):
-        return self.page.get_by_role("button", name="Sign in")
+    def btnLogin(self):
+        return self.page.get_by_role("button", name="Login")
     
-    #Selector mensaje de error
+    #Selector mensaje error/éxito/alerta
     @property
-    def msgerror(self):
-        return self.page.locator("body > div.ng-scope > div > div > div > div > div > list-errors > ul")
+    def flashMessage(self):
+        return self.page.locator("#flash")
+    
+    #Selector cerrar mensaje error/éxito/alerta
+    @property
+    def btnCerrarFlashMessage(self):
+        return self.page.get_by_role("button", name="Close")

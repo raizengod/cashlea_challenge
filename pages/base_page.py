@@ -27,6 +27,7 @@ from locators.locator_home import HomeLocatorsPage
 from locators.locator_register import RegisterLocatorsPage
 from locators.locator_login import LoginLocatorsPage
 from locators.locator_webinput import WebInputsLocatorsPage
+from locators.locator_userdashboard import UserDashboardLocatorsPage
 
 class BasePage:
     """
@@ -82,6 +83,7 @@ class BasePage:
         self.register = RegisterLocatorsPage(self.page)
         self.login = LoginLocatorsPage(self.page)
         self.webinputs = WebInputsLocatorsPage(self.page)
+        self.userdashboard = UserDashboardLocatorsPage(self.page)
         
     #2- Función para generar el nombre de archivo con marca de tiempo
     @allure.step("Generar Nombre de Archivo con Timestamp: {prefijo}")

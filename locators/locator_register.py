@@ -10,7 +10,7 @@ class RegisterLocatorsPage:
     def labelRegister(self):
         return self.page.get_by_role("heading", name="Test Register page for")
     
-    #Selector label decripción de registr
+    #Selector label decripción de register
     @property
     def labelDescriptionRegister(self):
         return self.page.locator("#core div").filter(has_text="This Test Register page is").nth(3)
