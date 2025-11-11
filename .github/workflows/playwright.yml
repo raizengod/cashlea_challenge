@@ -27,11 +27,23 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pages: write # Permiso necesario para actions/deploy-pages
+      id-token: write # Permiso necesario para actions/deploy-pages
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13.9'
+
+      # CRÍTICO: Instalar Java (JRE) para que Allure pueda ejecutarse
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       
       - name: Instalar dependencias de Python
         run: |
@@ -67,27 +79,44 @@ jobs:
         env:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
-          pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
-          
-      - name: Subir informe de pruebas de Playwright (Allure Results)
-        # Se ejecuta siempre (incluso si las pruebas fallan) para subir los resultados
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-raw-results
-          # Ruta configurada en pyproject.toml: reports/allure_results
-          path: reports/allure_results
-          retention-days: 7
+          pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py -n 5 --alluredir=reports/allure_results
+      
+      # 1. Configurar Pages para obtener la URL base
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
-      - name: Generar y Desplegar Reporte HTML de Allure
-        # Este paso utiliza los resultados brutos subidos y los convierte en un reporte HTML interactivo
-        if: always()
-        uses: simple-elf/allure-report-action@master
+      # 2. Generar el reporte HTML con el base URL correcto
+      - name: Build Allure Report with Base URL
+        # Utilizamos el binario de Allure (proporcionado por get-allure-binaries)
+        uses: jenkins-x/jx-action-allure-report@v1.4.1
         with:
-          allure_results: reports/allure_results
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          allure_title: Playwright Test Results
-          # Configura GitHub Pages para servir el reporte
-          subfolder: docs 
-          # Asegura que el reporte sea accesible a través de GitHub Pages
-          gh_pages: gh-pages
+          # Le decimos a Allure que debe poner el reporte en la carpeta 'allure-report'
+          report-path: allure-report
+          # Usamos el nombre del repositorio como el base URL, que es el estándar de GH Pages
+          base-url: /cashlea_challenge/ 
+          results-path: reports/allure_results
+
+      # 3. Subir el reporte como un artefacto de GitHub Pages
+      - name: Upload Allure Artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Subimos la carpeta generada en el paso anterior
+          path: 'allure-report'
+
+      # 4. Desplegar a GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        # El deploy sólo ocurre si la action 'configure-pages' se ejecutó correctamente
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # El artefacto descargable se mantiene (opcional)
+      - name: Publicar Reporte Allure (Descargable)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-e2e-descarga
+          path: allure-report
+          retention-days: 5

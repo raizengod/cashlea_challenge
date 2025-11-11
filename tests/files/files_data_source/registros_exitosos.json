@@ -34,5 +34,59 @@
         "password": "#r(5dVgl)Cd2",
         "confirmar_password": "#r(5dVgl)Cd2",
         "tipo_dato": "Válido"
+    },
+    {
+        "username": "kcoronado156",
+        "nombre": "María Belén",
+        "apellido": "Amorós",
+        "email": "nadiaalcaraz@valero.es",
+        "password": "1YX7jZ!eyY*u",
+        "confirmar_password": "1YX7jZ!eyY*u",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "gilbertocorrea444",
+        "nombre": "Evaristo",
+        "apellido": "Iglesia",
+        "email": "panfilo52@hotmail.com",
+        "password": "XOm14N4yyjB*",
+        "confirmar_password": "XOm14N4yyjB*",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "psaavedra827",
+        "nombre": "Lorenza",
+        "apellido": "Vilar",
+        "email": "wlobato@hotmail.com",
+        "password": "Aj3JoXpwcH!X",
+        "confirmar_password": "Aj3JoXpwcH!X",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "ncid502",
+        "nombre": "Diego",
+        "apellido": "Serrano",
+        "email": "gustavo19@hotmail.com",
+        "password": "C^sDxa_9vB6Z",
+        "confirmar_password": "C^sDxa_9vB6Z",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "wmarco465",
+        "nombre": "Manu",
+        "apellido": "Pomares",
+        "email": "azucenatalavera@adolfo.com",
+        "password": "ipJK4AAAy#!E",
+        "confirmar_password": "ipJK4AAAy#!E",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "merchesotelo284",
+        "nombre": "Emperatriz",
+        "apellido": "Botella",
+        "email": "graciela25@hotmail.com",
+        "password": "1_Hmegy*(!2B",
+        "confirmar_password": "1_Hmegy*(!2B",
+        "tipo_dato": "Válido"
     }
 ]
