@@ -315,7 +315,7 @@ def test_registrar_usurio_con_solo_username(set_up_RegisterPage: BasePage) -> No
     # PASO 7: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
     
-def test_registrar_usurio_sin_confirm_password(set_up_RegisterPage: BasePage) -> None:
+def test_registrar_usuario_sin_confirm_password(set_up_RegisterPage: BasePage) -> None:
     """
     [ID: RE-T006] Verificación de la validación de campo requerido (Confirm Password).
 
