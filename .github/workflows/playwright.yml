@@ -55,10 +55,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Instalar Allure Report CLI (Usando Acción Mantenida)
-        uses: taiki-e/setup-allure-action@v1
-        with:
-          version: 2.29.0 
+      - name: Instalar Allure Report CLI (Descarga Directa)
+        run: |
+          # 1. URL estática de la última versión conocida y estable (2.35.2)
+          ALLURE_VERSION=2.35.2
+          ALLURE_URL="https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-commandline-${ALLURE_VERSION}.zip"
+          
+          echo "Descargando Allure CLI desde: $ALLURE_URL"
+          wget $ALLURE_URL -O allure-commandline.zip
+          
+          # 2. Descomprimir e instalar
+          sudo unzip allure-commandline.zip -d /opt/allure
+          
+          # 3. Crear enlace simbólico para que el comando 'allure' esté en el PATH
+          sudo ln -s /opt/allure/allure-${ALLURE_VERSION}/bin/allure /usr/local/bin/allure
+          
+          # 4. Verificar la instalación
+          allure --version
       
       - name: Instalar navegadores de Playwright
         run: playwright install --with-deps
