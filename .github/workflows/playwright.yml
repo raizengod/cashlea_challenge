@@ -55,10 +55,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Instalar Allure Report CLI (Usando Acción Oficial)
-        uses: allure-framework/setup-allure-action@v2
+      - name: Instalar Allure Report CLI (Usando Acción Mantenida)
+        uses: taiki-e/setup-allure-action@v1
         with:
-          allure-version: 2.29.0
+          version: 2.29.0 
       
       - name: Instalar navegadores de Playwright
         run: playwright install --with-deps
