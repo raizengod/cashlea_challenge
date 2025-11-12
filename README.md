@@ -29,6 +29,7 @@ Se buscó:
 
 **Reporte**
 * **Allure:** Generación de reportes detallados y traza de fallos.
+* **pytest-reporter-html1:**  Generación de informes HTML interactivo, proporcionando una visualización clara y detallada de los resultados.
 
 **Diseño**
 * **Page Object Model (POM):** Estructura del código para alta mantenibilidad y reusabilidad.
