@@ -38,12 +38,6 @@ jobs:
       - name: Checkout Código Fuente
         uses: actions/checkout@v4
 
-      # 🚨 CRÍTICO: Instalación de Java (Obligatorio para Allure CLI)
-      - name: Configurar Java 17 para Allure
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -55,24 +49,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Instalar Allure Report CLI (Descarga Directa)
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.9' # Asegúrate de que esta sea la versión de Python que usas
+      - name: Instalar dependencias de Python
         run: |
-          # 1. URL estática de la última versión conocida y estable (2.35.2)
-          ALLURE_VERSION=2.35.2
-          ALLURE_URL="https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-commandline-${ALLURE_VERSION}.zip"
-          
-          echo "Descargando Allure CLI desde: $ALLURE_URL"
-          wget $ALLURE_URL -O allure-commandline.zip
-          
-          # 2. Descomprimir e instalar
-          sudo unzip allure-commandline.zip -d /opt/allure
-          
-          # 3. Crear enlace simbólico para que el comando 'allure' esté en el PATH
-          sudo ln -s /opt/allure/allure-${ALLURE_VERSION}/bin/allure /usr/local/bin/allure
-          
-          # 4. Verificar la instalación
-          allure --version
-      
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Instalar navegadores de Playwright
         run: playwright install --with-deps
 
@@ -103,34 +87,11 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
           pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
-
-      - name: Generar Reporte Allure con Base URL
-        # Se ejecuta siempre para asegurar que el reporte se genere incluso con fallos
+          
+      - name: Subir informe de pruebas de Playwright (para debugging o descarga)
+        uses: actions/upload-artifact@v4
         if: always()
-        run: |
-          # Usamos la variable de entorno de Pages para obtener la URL base correcta
-          # El formato es: allure generate --clean <results_dir> -o <report_dir> --base-url /<REPO_NAME>/
-          REPO_NAME=${{ github.event.repository.name }}
-          # Usamos 'allure-report' como nombre de la carpeta generada, que será el artefacto
-          allure generate reports/allure_results --clean -o reports/allure-report --base-url /$REPO_NAME/
-
-      # ----------------------------------------------------------------------
-      # FLUJO OFICIAL DE DESPLIEGUE DE GITHUB PAGES (Reemplaza a simple-elf)
-      # ----------------------------------------------------------------------
-          
-      - name: Configurar GitHub Pages
-        # Necesario para el flujo oficial de Pages
-        uses: actions/configure-pages@v5
-        
-      - name: Subir Artifacto de Reporte (allure-report)
-        # Sube la carpeta del reporte HTML generado al servicio de Artifactos de Pages
-        uses: actions/upload-pages-artifact@v3
         with:
-          # El nombre del artifact debe ser 'github-pages' o 'pages'
-          name: github-pages 
-          # La ruta de la carpeta que contiene el reporte HTML (GENERADA POR ALLURE)
-          path: reports/allure-report 
-          
-      - name: Desplegar a GitHub Pages
-        # La acción oficial que utiliza el artifact subido para publicar el sitio
-        uses: actions/deploy-pages@v4
+          name: playwright-raw-report
+          path: reports/html1/playwright_reporte.html
+          retention-days: 30
