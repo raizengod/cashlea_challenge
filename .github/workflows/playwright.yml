@@ -9,10 +9,11 @@ on:
     branches:
       - main
       - master
+  # Permite ejecutar el workflow manualmente y seleccionar el ambiente
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Selecciona el ambiente de ejecución (e.g., dev, staging)'
+        description: 'Selecciona el ambiente de ejecución (e.g., qa, prod)'
         required: true
         default: 'qa'
         type: choice
@@ -27,9 +28,25 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    # 🚨 CRÍTICO: Configuración de Permisos para Despliegue en Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write # Requerido por actions/deploy-pages
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      # 🚨 CRÍTICO: Instalación de Java (Obligatorio para Allure CLI)
+      - name: Configurar Java 17 para Allure
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.13.9'
       
@@ -37,6 +54,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Instalar Allure CLI
+        run: |
+          # Instalación global del comando 'allure'
+          pip install allure-pytest
       
       - name: Instalar navegadores de Playwright
         run: playwright install --with-deps
@@ -44,7 +66,7 @@ jobs:
       - name: Crear directorio de ambiente
         run: mkdir -p environments
 
-      - name: Crear archivo de ambiente para el CI
+      - name: Crear archivo de ambiente para el CI (SIMULADO)
         env:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
@@ -68,35 +90,34 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.environment || 'qa' }}
         run: |
           pytest tests/e2e/test_home.py tests/e2e/test_webinput.py tests/e2e/test_register.py tests/e2e/test_login.py
+
+      - name: Generar Reporte Allure con Base URL
+        # Se ejecuta siempre para asegurar que el reporte se genere incluso con fallos
+        if: always()
+        run: |
+          # Usamos la variable de entorno de Pages para obtener la URL base correcta
+          # El formato es: allure generate --clean <results_dir> -o <report_dir> --base-url /<REPO_NAME>/
+          REPO_NAME=${{ github.event.repository.name }}
+          # Usamos 'allure-report' como nombre de la carpeta generada, que será el artefacto
+          allure generate reports/allure_results --clean -o reports/allure-report --base-url /$REPO_NAME/
+
+      # ----------------------------------------------------------------------
+      # FLUJO OFICIAL DE DESPLIEGUE DE GITHUB PAGES (Reemplaza a simple-elf)
+      # ----------------------------------------------------------------------
           
-      - name: Subir informe de pruebas de Playwright (Allure Results)
-        # Se ejecuta siempre (incluso si las pruebas fallan) para subir los resultados
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Configurar GitHub Pages
+        # Necesario para el flujo oficial de Pages
+        uses: actions/configure-pages@v5
+        
+      - name: Subir Artifacto de Reporte (allure-report)
+        # Sube la carpeta del reporte HTML generado al servicio de Artifactos de Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: allure-raw-results
-          # Ruta configurada en pyproject.toml: reports/allure_results
-          path: reports/allure_results
-          retention-days: 2
-
-      - name: Generar y Desplegar Reporte HTML de Allure
-        # Este paso utiliza los resultados brutos subidos y los convierte en un reporte HTML interactivo
-        if: always()
-        uses: simple-elf/allure-report-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          allure_results: reports/allure_results
-          allure_title: Playwright Test Results
-          # Configura GitHub Pages para servir el reporte
-          subfolder: docs 
-          # Asegura que el reporte sea accesible a través de GitHub Pages
-          gh_pages: gh-pages
-
-      - name: Publicar Reporte Allure (Descargable)
-        uses: actions/upload-artifact@v4
-        with:
-          # NOTA IMPORTANTE: El directorio 'allure-report' es generado por la acción 'simple-elf/allure-report-action@v1.7'
-          # y contiene el index.html correcto.
-          name: reporte-e2e-descarga
-          path: allure-report
-          retention-days: 5
+          # El nombre del artifact debe ser 'github-pages' o 'pages'
+          name: github-pages 
+          # La ruta de la carpeta que contiene el reporte HTML (GENERADA POR ALLURE)
+          path: reports/allure-report 
+          
+      - name: Desplegar a GitHub Pages
+        # La acción oficial que utiliza el artifact subido para publicar el sitio
+        uses: actions/deploy-pages@v4
