@@ -253,3 +253,5 @@ Este framework demuestra habilidades avanzadas en:
 
 ## Autor
 [Carlos N](https://github.com/raizengod)
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/raizengod/cashlea_challenge)
