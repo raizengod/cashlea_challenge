@@ -173,9 +173,31 @@ Para ejecutar el suite de pruebas para un entorno específico (por ejemplo, QA),
     ```bash
     pytest test\e2e -n 8
     ```
-Una vez que la ejecución finalice, el reporte en formato **HTML** se generará automáticamente en la ruta
- 
-```allure serve allure-results```
+
+5.  **Ejecutar las Pruebas:** El framework está configurado para generar resultados de `Allure` y `pytest-reporter-html1` automáticamente
+
+## 📊 Instrucciones de Reporte
+Una vez finalizada la ejecución de `pytest`, se han generado los resultados brutos necesarios para visualizar los informes de calidad.
+
+1. **Visualizar Reporte de Allure**
+
+El reporte de Allure ofrece una visión detallada, con pasos, logs, capturas y tiempos de ejecución.
+
+* **Generar y Abrir el Reporte:**
+    ```
+    # Genera el reporte HTML a partir de los resultados brutos
+    allure serve allure-results
+    ```
+
+2. **Visualizar Reporte Pytest-Reporter-HTML1**
+Este reporte es un archivo HTML simple y autocontenido, fácil de abrir directamente.
+
+* **Abrir el Archivo:** Busca y abre el archivo en tu navegador:
+    ```
+    open reports/html1/playwright_reporte.html
+
+    # O ir a la carpeta reports/html1/ y abriir manualmente el archivo playwright_reporte.html
+    ```
 
 
 ## 🚨 Hallazgos y Defectos Clave
@@ -217,18 +239,17 @@ El framework está diseñado para una fácil integración en cualquier pipeline 
 ## 🚀 Mejoras Futuras / Roadmap
 * Explorar la automatización de otros módulos complejos como **Data Tables** y **Alerts**
 
-## ✅ Habilidades Demostradas
+## 🧠 Habilidades Demostradas
+
 Este framework demuestra habilidades avanzadas en:
 
-* Diseño y arquitectura de frameworks de automatización.
-* Implementación de patrones de diseño de software (Page Object Model).
-* Gestión de configuraciones y ambientes.
-* Generación dinámica de datos de prueba para tests robustos.
-* Centralización de la lógica de logging y manejo de excepciones.
-* Configuración y optimización de CI/CD para la automatización de QA.
-* Gestión de dependencias y entornos de prueba.
-* Implementación de reportes de calidad con pytest-reporter-html.
-* Integración de pruebas de rendimiento.
+* **Diseño y Arquitectura de Frameworks:** Implementación robusta del patrón **Page Object Model (POM)** con capas de abstracción para elementos y validaciones, asegurando la mantenibilidad.
+* **Gestión de Datos:** Implementación de la librería **Faker** para la generación dinámica de datos y una estrategia de persistencia (`registros_exitosos.json`) para asegurar la trazabilidad y la validez de los tests de Login, incluso en CI/CD.
+* **Configuración y Ambientes:** Uso de archivos de configuración (`config.py`) y gestión de secretos para la ejecución multi-ambiente.
+* **Logging y Trazabilidad:** Centralización de la lógica de logging y manejo de excepciones.
+* **Reportes de Calidad:** Configuración de **Allure** y **pytest-reporter-html1** para generar informes detallados.
+* **Integración Continua (CI/CD):** Diseño del workflow en GitHub Actions para la ejecución automatizada y el despliegue del reporte Allure en GitHub Pages.
+* **UX Performance Testing:** Integración de la medición de métricas de rendimiento (tiempos de respuesta de UI) directamente en las pruebas funcionales.
 
 ## Autor
 [Carlos N](https://github.com/raizengod)
