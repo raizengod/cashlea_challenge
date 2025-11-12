@@ -1,5 +1,7 @@
 # 🧪 Prueba Técnica QA Automation: Cashela Challenge
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/raizengod/cashlea_challenge)
+
 ## 🐍 Playwright + Python + Pytest
 Este proyecto contiene el framework de automatización de pruebas de extremo a extremo (E2E) desarrollado para cumplir con los requisitos de la Prueba Técnica de QA Automation para Cashela, enfocándose en la evaluación exploratoria y la implementación de un código robusto.
 
@@ -253,5 +255,3 @@ Este framework demuestra habilidades avanzadas en:
 
 ## Autor
 [Carlos N](https://github.com/raizengod)
-
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/raizengod/cashlea_challenge)
