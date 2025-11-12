@@ -55,14 +55,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Instalar Allure Report CLI
-        run: |
-          # Descarga e instala la CLI de Allure de forma explícita
-          sudo wget -O /usr/local/bin/allure https://github.com/allure-framework/allure2/releases/latest/download/allure-commandline.zip
-          sudo unzip /usr/local/bin/allure -d /opt/allure
-          sudo rm /usr/local/bin/allure
-          sudo ln -s /opt/allure/allure-*/bin/allure /usr/local/bin/allure
-          allure --version # Verificar la instalación
+      - name: Instalar Allure Report CLI (Usando Acción Oficial)
+        uses: allure-framework/setup-allure-action@v2
+        with:
+          allure-version: 2.29.0
       
       - name: Instalar navegadores de Playwright
         run: playwright install --with-deps
