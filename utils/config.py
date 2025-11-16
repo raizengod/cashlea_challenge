@@ -86,13 +86,14 @@ JIRA_REPORTING_ENABLED = os.getenv("JIRA_REPORTING_ENABLED", 'False').lower() in
 
 # --- 3. RUTAS DE ALMACENAMIENTO DE EVIDENCIAS ---
 # Todos los reportes se guardarán bajo 'PROJECT_ROOT/reports'
-DIRECTORIO_BASE_EVIDENCIAS = os.path.join(PROJECT_ROOT, "reports")
+DIRECTORIO_BASE_REPORTS = os.path.join(PROJECT_ROOT, "reports") 
 
-# Subdirectorios para diferentes tipos de evidencia/archivos
-VIDEO_DIR = os.path.join(DIRECTORIO_BASE_EVIDENCIAS, "video")           # Archivos .webm
-TRACEVIEW_DIR = os.path.join(DIRECTORIO_BASE_EVIDENCIAS, "traceview") # Archivos .zip
-SCREENSHOT_DIR = os.path.join(DIRECTORIO_BASE_EVIDENCIAS, "imagen")   # Archivos .png
-LOGGER_DIR = os.path.join(DIRECTORIO_BASE_EVIDENCIAS, "log")          # Archivos .log
+# Subdirectorios BASE para diferentes tipos de evidencia/archivos.
+# El subdirectorio final para cada test se agregará en conftest.py
+VIDEO_BASE_DIR = os.path.join(DIRECTORIO_BASE_REPORTS, "video") # Archivos .webm
+TRACEVIEW_BASE_DIR = os.path.join(DIRECTORIO_BASE_REPORTS, "traceview") # Archivos .zip
+SCREENSHOT_BASE_DIR = os.path.join(DIRECTORIO_BASE_REPORTS, "imagen") # Archivos .png
+LOGGER_BASE_DIR = os.path.join(DIRECTORIO_BASE_REPORTS, "logs") # Archivos .log (cambio de 'log' a 'logs')
 
 # Directorios para manejo de archivos del test
 SOURCE_FILES_DIR_DATA_WRITE = os.path.join(PROJECT_ROOT, "tests", "files", "files_data_write")
@@ -100,84 +101,35 @@ SOURCE_FILES_DIR_DATA_SOURCE = os.path.join(PROJECT_ROOT, "tests", "files", "fil
 SOURCE_FILES_DIR_UPLOAD = os.path.join(PROJECT_ROOT, "tests", "files", "files_upload")
 SOURCE_FILES_DIR_DOWNLOAD = os.path.join(PROJECT_ROOT, "tests", "files", "files_download")
 
-
-# --------------------------------------------------------------------------
 # --- 4. INICIALIZACIÓN DEL LOGGER (CONFIGURACIÓN) ---
 
-# Se crea el directorio de logs ANTES de llamar a setup_logger para asegurar que el archivo de log se pueda escribir.
+# Se inicializa un logger global para uso en config.py, no específico de un test.
 try:
-    os.makedirs(LOGGER_DIR, exist_ok=True)
+    # Creamos SOLO el directorio BASE de logs para el log principal del framework.
+    os.makedirs(LOGGER_BASE_DIR, exist_ok=True)
 except Exception as e:
     # Usamos print y raise aquí porque el logger aún no está totalmente inicializado.
-    print(f"\nERROR FATAL (pre-logger): No se pudo crear el directorio de logs '{LOGGER_DIR}'.")
-    raise EnvironmentError(f"\nFallo al configurar el directorio de logs: {e}")
+    print(f"\nCRÍTICO: No se pudo crear el directorio base de logs '{LOGGER_BASE_DIR}'. Detalles: {e}")
+    raise
 
 
-# Inicializamos el logger pasándole la ruta. Nombre: 'config_setup'.
+# Inicializar logger con el directorio base
 logger = setup_logger(
-    name='config_setup', 
+    name='Configuration', 
     console_level=logging.INFO, 
-    file_level=logging.DEBUG,
-    log_dir=LOGGER_DIR 
-)
-# --------------------------------------------------------------------------
+    file_level=logging.DEBUG, 
+    log_dir=LOGGER_BASE_DIR # Pasamos el directorio base
+) 
+logger.info(f"\nLogger 'Configuration' inicializado en: {LOGGER_BASE_DIR}")
 
-
-# Notificaciones del paso 1 (Ahora que el logger está listo)
-if os.path.exists(archivo_dotenv):
-    logger.info(f"\nCargando variables de entorno para ambiente: '{AMBIENTE}' desde '{archivo_dotenv}'")
-else:
-    logger.warning(f"\nAdvertencia: Archivo de entorno '{archivo_dotenv}' NO encontrado. Usando variables de entorno del sistema (o valores vacíos).")
-
-
-# --- 5. FUNCIÓN PARA ASEGURAR DIRECTORIOS (MEJORADA) ---
-
-def asegurar_directorios_existan():
-    """
-    Crea los directorios necesarios si no existen.
-
-    Si falla la creación de un directorio esencial (ej. por permisos o ruta inválida),
-    lanza una excepción EnvironmentError para detener la ejecución de Pytest.
-    """
-    directorios_a_verificar = [
-        VIDEO_DIR, 
-        TRACEVIEW_DIR, 
-        SCREENSHOT_DIR, 
-        LOGGER_DIR,
-        SOURCE_FILES_DIR_DATA_WRITE, 
-        SOURCE_FILES_DIR_DATA_SOURCE,
-        SOURCE_FILES_DIR_UPLOAD, 
-        SOURCE_FILES_DIR_DOWNLOAD
-    ]
-    
-    logger.info("\nVerificando y asegurando la existencia de directorios base...")
-
-    for directorio in directorios_a_verificar:
-        try:
-            os.makedirs(directorio, exist_ok=True)
-            logger.debug(f"\nDirectorio OK: {directorio}")
-        except OSError as e:
-            # === MEJORA 2: REGISTRO DETALLADO Y LANZAMIENTO CRÍTICO ===
-            error_msg = (
-                f"\nERROR CRÍTICO: Fallo al crear el directorio esencial '{directorio}'. "
-                f"\nCausa probable: Permisos insuficientes o ruta inválida."
-            )
-            logger.critical(error_msg, exc_info=True) # Registra el traceback (permisos, espacio, etc.)
-            raise EnvironmentError(error_msg) from e 
-
-    logger.info("\nVerificación de directorios finalizada.")
-
-
-# --- 6. FUNCIÓN DE VALIDACIÓN (OPTIMIZADA) ---
+# --- 5. FUNCIONES AUXILIARES DE VALIDACIÓN Y SETUP ---
 
 def validar_variables_entorno_criticas():
     """
-    Valida que todas las variables de entorno críticas (definidas en VARIABLES_ENTORNO_CRITICAS)
-    estén definidas y no estén vacías. Detiene la ejecución si alguna falta.
+    Verifica que las variables de entorno críticas estén cargadas. Detiene la ejecución si alguna falta.
     """
     todas_cargadas = True
     variables_faltantes = []
-
     for var in VARIABLES_ENTORNO_CRITICAS:
         if not os.getenv(var) or not os.getenv(var).strip():
             # === MEJORA 1: MENSAJE CONCISO ===
@@ -189,21 +141,61 @@ def validar_variables_entorno_criticas():
     if not todas_cargadas:
         error_msg = (
             f"\nFallo en la configuración. Ejecución detenida. "
-            f"\nVariables críticas FALTANTES en ambiente '{AMBIENTE}': {', '.join(variables_faltantes)}"
+            f"\nVariables faltantes: {', '.join(variables_faltantes)}. "
+            f"\nAsegure que el archivo '{archivo_dotenv}' exista y esté completo."
         )
-        logger.critical(error_msg)
+        logger.error(error_msg)
         raise EnvironmentError(error_msg)
-    
-    logger.info("\nTodas las variables de entorno críticas han sido validadas correctamente.")
+    else:
+        logger.info("\nVALIDACIÓN: Todas las variables de entorno críticas están cargadas.")
 
-    # Informar las variables cargadas (solo a nivel DEBUG para no saturar INFO)
+def asegurar_directorios_base():
+    """
+    Asegura que los directorios base de evidencia y auxiliares existan. 
+    Los directorios específicos de cada test se crearán en conftest.py.
+    """
+    directorios_a_crear = [
+        VIDEO_BASE_DIR,
+        TRACEVIEW_BASE_DIR,
+        SCREENSHOT_BASE_DIR,
+        LOGGER_BASE_DIR,
+        DIRECTORIO_AMBIENTES,
+        SOURCE_FILES_DIR_DATA_WRITE,
+        SOURCE_FILES_DIR_DATA_SOURCE,
+        SOURCE_FILES_DIR_UPLOAD,
+        SOURCE_FILES_DIR_DOWNLOAD,
+    ]
+
+    for d in directorios_a_crear:
+        try:
+            os.makedirs(d, exist_ok=True)
+            logger.debug(f"\nDirectorio asegurado: {d}")
+        except Exception as e:
+            logger.error(f"\nCRÍTICO: No se pudo crear el directorio '{d}'. Detalles: {e}")
+            raise
+
+
+# --- 6. DEBUG Y REGISTRO DE CONFIGURACIÓN ---
+
+def registrar_configuracion_final():
+    """
+    Registra las configuraciones finales para debug, ocultando tokens sensibles.
+    """
+    # Lista de variables y sus valores (ocultando tokens)
     variables_a_debuggear = [
-        ("BASE_URL", BASE_URL), 
+        ("AMBIENTE", AMBIENTE),
+        # URLs
+        ("BASE_URL", BASE_URL),
         ("LOGIN_URL", LOGIN_URL),
-        ("REGISTER_URL", REGISTER_URL), 
+        ("REGISTER_URL", REGISTER_URL),
         ("WEBINPUT_URL", WEBINPUT_URL),
         ("DYNAMICTABLE_URL", DYNAMICTABLE_URL),
         ("USERDASHBOARD_URL", USERDASHBOARD_URL),
+        # Rutas Base de Evidencias
+        ("VIDEO_BASE_DIR", VIDEO_BASE_DIR),
+        ("TRACEVIEW_BASE_DIR", TRACEVIEW_BASE_DIR),
+        ("SCREENSHOT_BASE_DIR", SCREENSHOT_BASE_DIR),
+        ("LOGGER_BASE_DIR", LOGGER_BASE_DIR),
         # --- NUEVAS VARIABLES DE TRELLO ---
         ("TRELLO_API_KEY", "***********" if TRELLO_API_KEY else None),
         ("TRELLO_API_TOKEN", "***********" if TRELLO_API_TOKEN else None),
@@ -228,7 +220,8 @@ def validar_variables_entorno_criticas():
 # --- 7. EJECUCIÓN FINAL AL IMPORTAR EL MÓDULO ---
 
 validar_variables_entorno_criticas() 
-asegurar_directorios_existan()
+asegurar_directorios_base() 
+registrar_configuracion_final()
 
 # --- 8. UTILIDAD PARA OBTENER CONFIGURACIÓN (PARA MÓDULOS EXTERNOS) ---
 

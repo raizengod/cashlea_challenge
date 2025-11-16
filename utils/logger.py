@@ -5,7 +5,8 @@ from datetime import datetime
 
 def setup_logger(name='playwright_automation', console_level=logging.INFO, file_level=logging.DEBUG, log_dir=None):
     """
-    Configura y devuelve una instancia de logger...
+    Configura y devuelve una instancia de logger. Si se proporciona log_dir, 
+    crea un FileHandler para guardar un log específico en ese directorio.
     """
     # 1. Obtener o crear una instancia del logger
     logger = logging.getLogger(name)
@@ -32,22 +33,26 @@ def setup_logger(name='playwright_automation', console_level=logging.INFO, file_
 
     # 7. Configurar el handler para el archivo (FileHandler)
     
-    # PUNTO CLAVE: Verificamos y usamos el argumento 'log_dir'
-    if log_dir is None:
-        # Fallback de seguridad, pero config.py siempre debe pasarlo
-        log_dir = os.getcwd() 
-    
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file_name = f"automation_log_{timestamp}.log"
-    
-    # Construcción de la ruta: USA EXCLUSIVAMENTE 'log_dir' pasado como argumento.
-    log_file_path = os.path.join(log_dir, log_file_name) 
+    # PUNTO CLAVE: Verificamos y usamos el argumento 'log_dir' para crear un archivo de log por test.
+    if log_dir:
+        # Aunque conftest lo crea, esta es una buena práctica de contingencia.
+        try:
+            os.makedirs(log_dir, exist_ok=True)
+            
+            # Construir el nombre del archivo de log
+            now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_file_name = f"{name}_log_{now_str}.log"
+            log_file_path = os.path.join(log_dir, log_file_name) 
 
-    # Esto fallará si el directorio 'log_dir' no existe, por eso se crea en config.py antes de llamar a setup_logger
-    file_handler = logging.FileHandler(log_file_path, encoding='utf-8')
-    file_handler.setLevel(file_level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+            # Se configura el FileHandler
+            file_handler = logging.FileHandler(log_file_path, encoding='utf-8')
+            file_handler.setLevel(file_level)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+        
+        except Exception as e:
+            # Si falla la creación del archivo de log, se informa a la consola.
+            logger.warning(f"ADVERTENCIA: No se pudo crear el archivo de log en '{log_dir}'. Solo se registrará en consola. Error: {e}")
 
     return logger
 

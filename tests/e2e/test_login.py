@@ -23,6 +23,7 @@ def test_verificar_elementos_requeridos_presentes_login(set_up_LoginPage: BasePa
         el mensaje de feedback (flash message) esté oculto por defecto.
 
     Flujo:
+    
         1. Navegar a la Página de Login (gestionado por la fixture `set_up_LoginPage`).
         2. Desplazamiento (Scroll) hasta el título de la página.
         3. Validar el texto del título principal.
@@ -34,38 +35,39 @@ def test_verificar_elementos_requeridos_presentes_login(set_up_LoginPage: BasePa
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
     base_page = set_up_LoginPage
     
     # PASO 1: Desplazamiento hasta el elemento principal de la página.
-    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", config.SCREENSHOT_DIR)
+    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", base_page.SCREENSHOT_BASE_DIR)
     
     # PASO 2 y 3: Validar título y descripción de la página.
     base_page.element.verificar_texto_exacto(base_page.login.labelLogin, 
                                              "Test Login page for Automation Testing Practice",
-                                             "verificar_textoExactoLabelTitulo", config.SCREENSHOT_DIR)
+                                             "verificar_textoExactoLabelTitulo", base_page.SCREENSHOT_BASE_DIR)
     
     texto_descripcion_esperado = (
         """Test Login page""")
     base_page.element.verificar_texto_contenido(base_page.login.labelDescriptionLogin, texto_descripcion_esperado,
-                                               "verificarTextoDescripciónLogin", config.SCREENSHOT_DIR
+                                               "verificarTextoDescripciónLogin", base_page.SCREENSHOT_BASE_DIR
                                                )
     
     # PASO 4: Validar visibilidad de campos de entrada (Username y Password).
     # Username
-    base_page.element.validar_elemento_visible(base_page.login.labelUsernameLogin, "verificarLabelUsernameVisible", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_visible(base_page.login.txtUsernameLogin, "verificarCampoUsernameVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.labelUsernameLogin, "verificarLabelUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.txtUsernameLogin, "verificarCampoUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
     
     # Password
-    base_page.element.validar_elemento_visible(base_page.login.labelPasswordLogin, "verificarLabelPasswordVisible", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_visible(base_page.login.txtPasswordLogin, "verificarCampoPasswordVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.labelPasswordLogin, "verificarLabelPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.txtPasswordLogin, "verificarCampoPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
     
     # PASO 5: Validar visibilidad del botón de Login.
-    base_page.element.validar_elemento_visible(base_page.login.btnLogin, "verificarBotónLoginVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.btnLogin, "verificarBotónLoginVisible", base_page.SCREENSHOT_BASE_DIR)
     
     # PASO 6: Validar que el mensaje de feedback (flash message) no está visible inicialmente.
-    base_page.element.validar_elemento_no_visible(base_page.login.flashMessage, "verificarMensajeFlashNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.login.flashMessage, "verificarMensajeFlashNoVisible", base_page.SCREENSHOT_BASE_DIR)
 
 def test_login_con_usuario_registrado(set_up_LoginPage: BasePage) -> None:
     """
@@ -77,6 +79,7 @@ def test_login_con_usuario_registrado(set_up_LoginPage: BasePage) -> None:
         al dashboard de seguridad y la validación de todos los elementos post-login.
 
     Flujo:
+    
         1. Definir la ruta del archivo JSON con los registros exitosos.
         2. Leer el archivo JSON y seleccionar aleatoriamente las credenciales de un usuario válido.
         3. Rellenar los campos de Username y Password con las credenciales obtenidas.
@@ -88,6 +91,7 @@ def test_login_con_usuario_registrado(set_up_LoginPage: BasePage) -> None:
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
@@ -114,11 +118,11 @@ def test_login_con_usuario_registrado(set_up_LoginPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # 3. Interacción con el formulario de Login
-        base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", base_page.SCREENSHOT_BASE_DIR)
         
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "escribir_campoUsername", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, datos_usuario["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLogin", config.SCREENSHOT_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "escribir_campoUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, datos_usuario["password"], "escribir_campoPassword", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLogin", base_page.SCREENSHOT_BASE_DIR)
         
         # 4. Validaciones post-Login (Dashboard)
         
@@ -126,18 +130,18 @@ def test_login_con_usuario_registrado(set_up_LoginPage: BasePage) -> None:
         base_page.navigation.validar_url_actual(config.USERDASHBOARD_URL)
         
         # Valida el mensaje de éxito (flash message)
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", config.SCREENSHOT_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", base_page.SCREENSHOT_BASE_DIR)
         
         # Valida el saludo personalizado al usuario
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario["username"]}!", "verificarSaludoAUsuario", config.SCREENSHOT_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario["username"]}!", "verificarSaludoAUsuario", base_page.SCREENSHOT_BASE_DIR)
         
         # Valida la descripción del Dashboard
         base_page.element.verificar_texto_exacto(base_page.userdashboard.labelDescriptionDashboard, 
                                                 "Welcome to the Secure Area. When you are done click logout below.",
-                                                "verificarDescripciónDashboard", config.SCREENSHOT_DIR)
+                                                "verificarDescripciónDashboard", base_page.SCREENSHOT_BASE_DIR)
         
         # Valida que el botón de Logout esté visible
-        base_page.element.validar_elemento_visible(base_page.userdashboard.btnLogout, "validar_botónLogoutVisible", config.SCREENSHOT_DIR)
+        base_page.element.validar_elemento_visible(base_page.userdashboard.btnLogout, "validar_botónLogoutVisible", base_page.SCREENSHOT_BASE_DIR)
         
     except Exception as e:
         # Manejo de errores en caso de fallo en la lectura de archivos o flujo
@@ -154,6 +158,7 @@ def test_login_con_usuario_no_registrado(set_up_LoginPage: BasePage) -> None:
         mostrando un mensaje de error explícito y manteniendo al usuario en la página de Login.
 
     Flujo:
+    
         1. Generar un conjunto de credenciales válidas pero no registradas (usuario y contraseña).
         2. Rellenar los campos de Username y Password con estos datos no registrados.
         3. Hacer clic en el botón de Login.
@@ -164,6 +169,7 @@ def test_login_con_usuario_no_registrado(set_up_LoginPage: BasePage) -> None:
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
@@ -173,18 +179,18 @@ def test_login_con_usuario_no_registrado(set_up_LoginPage: BasePage) -> None:
     datos_usuario = generador_datos.generar_usuario_valido()
     
     # 2. Rellenar campos del formulario de Login
-    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", config.SCREENSHOT_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "escribir_campoUsernameNoRegistrado", config.SCREENSHOT_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, datos_usuario["password"], "escribir_campoPasswordNoRegistrado", config.SCREENSHOT_DIR)
+    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "escribir_campoUsernameNoRegistrado", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, datos_usuario["password"], "escribir_campoPasswordNoRegistrado", base_page.SCREENSHOT_BASE_DIR)
     
     # 3. Intentar hacer clic en el botón de Login
-    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginConCredencialesInvalidas", config.SCREENSHOT_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginConCredencialesInvalidas", base_page.SCREENSHOT_BASE_DIR)
     
     # 4. Validar que el usuario permanece en la misma pantalla de Login (URL)
     base_page.navigation.validar_url_actual(config.LOGIN_URL)
     
     # 5. Validar mensaje de error de usuario no registrado o credenciales incorrectas
-    base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "Username/Passoword invalid!", "verificar_MensajeError", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "Username/Passoword invalid!", "verificar_MensajeError", base_page.SCREENSHOT_BASE_DIR)
     
 def test_login_con_usuario_con_campos_vacios(set_up_LoginPage: BasePage) -> None:
     """
@@ -196,6 +202,7 @@ def test_login_con_usuario_con_campos_vacios(set_up_LoginPage: BasePage) -> None
         mostrando un mensaje de error específico que exige completar todos los campos.
 
     Flujo:
+    
         1. Verificar el estado inicial de los campos Username y Password (deben estar vacíos).
         2. Hacer clic en el botón de Login sin ingresar ningún dato.
         3. **Validación (Permanencia):** Verificar que la URL actual sigue siendo la de Login.
@@ -204,23 +211,24 @@ def test_login_con_usuario_con_campos_vacios(set_up_LoginPage: BasePage) -> None
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
     base_page = set_up_LoginPage
     
     # 1. Validar que los campos Username y Password están inicialmente vacíos
-    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacio", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacio", config.SCREENSHOT_DIR)
+    base_page.scroll_hasta_elemento(base_page.login.labelLogin, "scroll_HastaLabelLogin", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacio", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacio", base_page.SCREENSHOT_BASE_DIR)
     
     # 2. Proceder con el intento de login con campos vacíos
-    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginConCamposVacios", config.SCREENSHOT_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginConCamposVacios", base_page.SCREENSHOT_BASE_DIR)
     
     # 3. Validar que el usuario permanece en la misma pantalla de Login (URL)
     base_page.navigation.validar_url_actual(config.LOGIN_URL)
     
     # 4. Validar mensaje de error de campos obligatorios
-    base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", base_page.SCREENSHOT_BASE_DIR)
     
 def test_login_con_usuario_y_sin_password(set_up_LoginPage: BasePage) -> None:
     """
@@ -236,6 +244,7 @@ def test_login_con_usuario_y_sin_password(set_up_LoginPage: BasePage) -> None:
         en el archivo 'registros_exitosos.json'.
 
     Flujo:
+    
         1. Cargar las credenciales de un usuario registrado desde el archivo JSON.
         2. Rellenar el campo Username con el email/usuario cargado.
         3. Verificar que el campo Password permanezca vacío.
@@ -246,6 +255,7 @@ def test_login_con_usuario_y_sin_password(set_up_LoginPage: BasePage) -> None:
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
     base_page = set_up_LoginPage
@@ -270,19 +280,19 @@ def test_login_con_usuario_y_sin_password(set_up_LoginPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # 3. Rellenar el campo Username
-        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
         base_page.element.rellenar_campo_de_texto(
             base_page.login.txtUsernameLogin, 
             datos_usuario["username"], 
             "escribir_campoUsername",
-            config.SCREENSHOT_DIR
+            base_page.SCREENSHOT_BASE_DIR
         )
         
         # 4. Validar que el campo Password está vacío (se deja deliberadamente sin rellenar)
-        base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacío", config.SCREENSHOT_DIR)
+        base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacío", base_page.SCREENSHOT_BASE_DIR)
         
         # 5. Intentar hacer clic en Login
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginSinPassword", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginSinPassword", base_page.SCREENSHOT_BASE_DIR)
         
         # 6. Validar que la URL no ha cambiado (permanece en la pantalla de Login)
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
@@ -292,7 +302,7 @@ def test_login_con_usuario_y_sin_password(set_up_LoginPage: BasePage) -> None:
             base_page.login.flashMessage, 
             "All fields are required.", 
             "verificar_MensajeErrorCamposObligatorios",
-            config.SCREENSHOT_DIR
+            base_page.SCREENSHOT_BASE_DIR
         )
     
     except Exception as e:
@@ -313,6 +323,7 @@ def test_login_con_password_y_sin_username(set_up_LoginPage: BasePage) -> None:
         en el archivo 'registros_exitosos.json'.
 
     Flujo:
+    
         1. Cargar las credenciales de un usuario registrado desde el archivo JSON.
         2. Verificar que el campo Username permanezca vacío.
         3. Rellenar el campo Password con la contraseña cargada.
@@ -323,6 +334,7 @@ def test_login_con_password_y_sin_username(set_up_LoginPage: BasePage) -> None:
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     # La fixture `set_up_LoginPage` garantiza la navegación exitosa.
     base_page = set_up_LoginPage
@@ -347,19 +359,19 @@ def test_login_con_password_y_sin_username(set_up_LoginPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # 3. Validar que el campo Username está vacío (se deja deliberadamente sin rellenar)
-        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacío", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacío", base_page.SCREENSHOT_BASE_DIR)
         
         # 4. Rellenar el campo Password
         base_page.element.rellenar_campo_de_texto(
             base_page.login.txtPasswordLogin, 
             datos_usuario["password"], 
             "escribir_campoPassword",
-            config.SCREENSHOT_DIR
+            base_page.SCREENSHOT_BASE_DIR
         )
         
         # 5. Intentar hacer clic en Login
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginSinUsername", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "clic_botónLoginSinUsername", base_page.SCREENSHOT_BASE_DIR)
         
         # 6. Validar que la URL no ha cambiado (permanece en la pantalla de Login)
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
@@ -369,7 +381,7 @@ def test_login_con_password_y_sin_username(set_up_LoginPage: BasePage) -> None:
             base_page.login.flashMessage, 
             "All fields are required.", 
             "verificar_MensajeErrorCamposObligatorios",
-            config.SCREENSHOT_DIR
+            base_page.SCREENSHOT_BASE_DIR
         )
     
     except Exception as e:
@@ -390,6 +402,7 @@ def test_cerrar_mensaje_flash(set_up_LoginPage: BasePage) -> None:
         con un mensaje de error si los campos están vacíos.
 
     Flujo:
+    
         1. Asegurar que los campos Username y Password estén vacíos (estado inicial).
         2. Hacer clic en el botón de Login para forzar la aparición del mensaje de error.
         3. **Validación (Aparición):** Verificar que el mensaje flash de error sea visible.
@@ -399,29 +412,30 @@ def test_cerrar_mensaje_flash(set_up_LoginPage: BasePage) -> None:
     Parámetros:
         set_up_LoginPage (BasePage): Fixture que preconfigura el navegador y 
                                      navega a la página de Login.
+                                     
     """
     # La fixture `set_up_LoginPage` asegura la navegación exitosa a la página de Login.
     base_page = set_up_LoginPage
     
     # 1. Scroll hasta el formulario y validar que los campos de Username y Password estén vacíos
-    base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacio", config.SCREENSHOT_DIR)
-    base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacio", config.SCREENSHOT_DIR)
+    base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "validar_UsernameVacio", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "validar_PasswordVacio", base_page.SCREENSHOT_BASE_DIR)
     
     # 2. Hacer clic en Login con campos vacíos para disparar el mensaje de error
-    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "click_botónLoginCamposVacios", config.SCREENSHOT_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "click_botónLoginCamposVacios", base_page.SCREENSHOT_BASE_DIR)
     
     # 3. Validar que la URL permanezca en la página de Login (comportamiento esperado tras fallo)
     base_page.navigation.validar_url_actual(config.LOGIN_URL)
     
     # 4. Validar que el mensaje flash de error sea visible
-    base_page.element.validar_elemento_visible(base_page.login.flashMessage, "verificar_MensajeFlashVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.login.flashMessage, "verificar_MensajeFlashVisible", base_page.SCREENSHOT_BASE_DIR)
     
     # 5. Hacer clic en el botón de cierre del mensaje flash
-    base_page.element.hacer_clic_en_elemento(base_page.login.btnCerrarFlashMessage, "clic_CerrarMensajeFlash", config.SCREENSHOT_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.login.btnCerrarFlashMessage, "clic_CerrarMensajeFlash", base_page.SCREENSHOT_BASE_DIR)
     
     # 6. Validar que el mensaje flash ya no sea visible
-    base_page.element.validar_elemento_no_visible(base_page.login.flashMessage, "verificar_MensajeFlashNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.login.flashMessage, "verificar_MensajeFlashNoVisible", base_page.SCREENSHOT_BASE_DIR)
     
 def test_login_usuario_con_password_incorrecta(set_up_LoginPage: BasePage) -> None:
     """
@@ -433,6 +447,7 @@ def test_login_usuario_con_password_incorrecta(set_up_LoginPage: BasePage) -> No
         Password incorrecta, y que se muestre el mensaje de error adecuado.
 
     Flujo:
+    
         1. Carga un diccionario de datos de un usuario previamente registrado 
            desde el archivo 'registros_exitosos.json'.
         2. Genera una contraseña segura al azar que será la credencial incorrecta.
@@ -450,6 +465,7 @@ def test_login_usuario_con_password_incorrecta(set_up_LoginPage: BasePage) -> No
 
     Retorna:
         None: La prueba pasa si se cumplen ambas validaciones de error.
+        
     """
     # La fixture `set_up_LoginPage` asegura la navegación exitosa a la página de Login.
     base_page = set_up_LoginPage
@@ -474,17 +490,17 @@ def test_login_usuario_con_password_incorrecta(set_up_LoginPage: BasePage) -> No
         diferenteConfirmacion = generador_datos.generar_password_segura()
         
         # Paso 3: Rellenar el campo Username con el dato válido del usuario registrado
-        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", base_page.SCREENSHOT_BASE_DIR)
 
         # Paso 4: Rellenar el campo Password con la contraseña incorrecta generada al azar
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, diferenteConfirmacion, "Escribir_PasswordIncorrecta", config.SCREENSHOT_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtPasswordLogin, diferenteConfirmacion, "Escribir_PasswordIncorrecta", base_page.SCREENSHOT_BASE_DIR)
         
         # Paso 5: Hacer clic en el botón de Login
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin_PasswordIncorrecta", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin_PasswordIncorrecta", base_page.SCREENSHOT_BASE_DIR)
         
         # Paso 6: Validar el mensaje de error de credenciales inválidas
-        base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "Username/Passoword invalid!", "Verificar_MensajeErrorCredenciales", config.SCREENSHOT_DIR)
+        base_page.element.verificar_texto_exacto(base_page.login.flashMessage, "Username/Passoword invalid!", "Verificar_MensajeErrorCredenciales", base_page.SCREENSHOT_BASE_DIR)
         
         # Paso 7: Validar que el usuario no fue redirigido y permanece en la página de Login
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
@@ -506,6 +522,7 @@ def test_ir_a_otro_modulo_con_login_exitoso(set_up_LoginPage: BasePage) -> None:
         permanece activa.
 
     Flujo:
+    
         1. Carga un usuario válido desde 'registros_exitosos.json'.
         2. Inicia sesión exitosamente con las credenciales cargadas.
         3. **Validaciones Post-Login:**
@@ -527,6 +544,7 @@ def test_ir_a_otro_modulo_con_login_exitoso(set_up_LoginPage: BasePage) -> None:
 
     Retorna:
         None: La prueba pasa si se cumplen todas las validaciones de redirección y mensajes.
+        
     """
     # La fixture `set_up_LoginPage` asegura la navegación exitosa a la página de Login.
     base_page = set_up_LoginPage
@@ -548,30 +566,30 @@ def test_ir_a_otro_modulo_con_login_exitoso(set_up_LoginPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # 3. Iniciar sesión
-        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.labelPasswordLogin, datos_usuario["password"], "Escribir_PasswordValida", config.SCREENSHOT_DIR)
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.labelPasswordLogin, datos_usuario["password"], "Escribir_PasswordValida", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin", base_page.SCREENSHOT_BASE_DIR)
         
         # 4. Validaciones Post-Login Exitoso (Dashboard)
         base_page.navigation.validar_url_actual(config.USERDASHBOARD_URL)
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", config.SCREENSHOT_DIR)
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario['username']}!", "verificarSaludoAUsuario", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.userdashboard.btnLogout, "validar_botónLogoutVisible", config.SCREENSHOT_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario['username']}!", "verificarSaludoAUsuario", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.userdashboard.btnLogout, "validar_botónLogoutVisible", base_page.SCREENSHOT_BASE_DIR)
         
         # 5. Navegar a Home
-        base_page.element.hacer_clic_en_elemento(base_page.userdashboard.linkGoHome, "clic_LinkHome", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.userdashboard.linkGoHome, "clic_LinkHome", base_page.SCREENSHOT_BASE_DIR)
         
         # 6. Validaciones en Home
         base_page.navigation.validar_url_actual(config.BASE_URL)
-        base_page.scroll_hasta_elemento(base_page.home.linkWebInput, "scroll_HastaWebInput", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.linkWebInput, "validadVisibilidad_WebInput", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.linkTestLogin, "validadVisibilidad_TestLogin", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.linkTestRegister, "validadVisibilidad_TestRegister", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.home.linkDynamicTable, "validadVisibilidad_DynamicTable", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.home.linkWebInput, "scroll_HastaWebInput", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.home.linkWebInput, "validadVisibilidad_WebInput", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.home.linkTestLogin, "validadVisibilidad_TestLogin", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.home.linkTestRegister, "validadVisibilidad_TestRegister", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.home.linkDynamicTable, "validadVisibilidad_DynamicTable", base_page.SCREENSHOT_BASE_DIR)
         
         # 7. Intentar navegar a Login Estando Ya Autenticado
-        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_linkTestLogin_SessionActiva", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_linkTestLogin_SessionActiva", base_page.SCREENSHOT_BASE_DIR)
         
         # 8. Validación de Restricción: Debería ser redirigido al Dashboard
         base_page.navigation.validar_url_actual(config.USERDASHBOARD_URL)
@@ -580,7 +598,7 @@ def test_ir_a_otro_modulo_con_login_exitoso(set_up_LoginPage: BasePage) -> None:
         base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, 
                                                 "You're logged in. Please log out before logging in as a different user",
                                                 "verificarTextoMensajeFlash_YaLogueado",
-                                                config.SCREENSHOT_DIR)                                       
+                                                base_page.SCREENSHOT_BASE_DIR)                                       
     except Exception as e:
         # Manejo de error crítico si falla la carga o el procesamiento de datos iniciales
         base_page.logger.error(f"\n❌ Error al leer o procesar el archivo JSON: {e}")
@@ -596,6 +614,7 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
         mensaje de cierre de sesión exitoso.
 
     Flujo:
+    
         1. Carga un usuario válido desde 'registros_exitosos.json'.
         2. Inicia sesión exitosamente con las credenciales cargadas.
         3. **Validaciones Post-Login:** Confirma el acceso al Dashboard.
@@ -613,6 +632,7 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
 
     Retorna:
         None: La prueba pasa si se cumplen todas las validaciones de cierre de sesión.
+        
     """
     # Inicializa la instancia de BasePage proporcionada por el fixture.
     base_page = set_up_LoginPage
@@ -635,18 +655,18 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # 3. Iniciar sesión exitosamente con las credenciales cargadas
-        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", config.SCREENSHOT_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.login.labelPasswordLogin, datos_usuario["password"], "Escribir_PasswordValida", config.SCREENSHOT_DIR)
-        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin", config.SCREENSHOT_DIR)
+        base_page.scroll_hasta_elemento(base_page.login.labelUsernameLogin, "Scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.txtUsernameLogin, datos_usuario["username"], "Escribir_UsernameValido", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.login.labelPasswordLogin, datos_usuario["password"], "Escribir_PasswordValida", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.login.btnLogin, "Click_BotónLogin", base_page.SCREENSHOT_BASE_DIR)
         
         # 4. Validaciones Post-Login: Confirmar el acceso al Dashboard
         base_page.navigation.validar_url_actual(config.USERDASHBOARD_URL)
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", config.SCREENSHOT_DIR)
-        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario['username']}!", "verificarSaludoAUsuario", config.SCREENSHOT_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.flashMessage, "You logged into a secure area!", "verificarMensajeLoginExitoso", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.verificar_texto_exacto(base_page.userdashboard.labelWelcome, f"Hi, {datos_usuario['username']}!", "verificarSaludoAUsuario", base_page.SCREENSHOT_BASE_DIR)
         
         # 5. Ejecutar Logout: Clic en el botón 'Logout'
-        base_page.element.hacer_clic_en_elemento(base_page.userdashboard.btnLogout, "clic_botónLogout", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.userdashboard.btnLogout, "clic_botónLogout", base_page.SCREENSHOT_BASE_DIR)
         
         # 6. Validación 1 (Redirección): Verificar regreso a la URL de Login
         base_page.navigation.validar_url_actual(config.LOGIN_URL)
@@ -655,21 +675,21 @@ def test_hacer_logout_exitoso(set_up_LoginPage: BasePage) -> None:
         base_page.element.verificar_texto_exacto(base_page.login.flashMessage, 
                                                  "You logged out of the secure area!",
                                                  "verificarTextoMensajeFlash_Logout",
-                                                 config.SCREENSHOT_DIR)
+                                                 base_page.SCREENSHOT_BASE_DIR)
         
         # 7. Validación 3 (Estado de la UI): Verificar que el formulario de Login esté listo
         # Visibilidad de elementos del Login (formulario listo para nuevo acceso)
-        base_page.element.validar_elemento_visible(base_page.login.labelUsernameLogin, "verificarLabelUsernameVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.login.txtUsernameLogin, "verificarCampoUsernameVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "verificarCampoUsernameVacío", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.login.labelPasswordLogin, "verificarLabelPasswordVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.login.txtPasswordLogin, "verificarCampoPasswordVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "verificarCampoPasswordVacío", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_visible(base_page.login.btnLogin, "verificarBotónLoginVisible", config.SCREENSHOT_DIR)
+        base_page.element.validar_elemento_visible(base_page.login.labelUsernameLogin, "verificarLabelUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.login.txtUsernameLogin, "verificarCampoUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_vacio(base_page.login.txtUsernameLogin, "verificarCampoUsernameVacío", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.login.labelPasswordLogin, "verificarLabelPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.login.txtPasswordLogin, "verificarCampoPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_vacio(base_page.login.txtPasswordLogin, "verificarCampoPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_visible(base_page.login.btnLogin, "verificarBotónLoginVisible", base_page.SCREENSHOT_BASE_DIR)
         
         # Verificación de que los elementos del Dashboard ya no están visibles
-        base_page.element.validar_elemento_no_visible(base_page.userdashboard.labelDescriptionDashboard, "verificarDescripciónDashboardNoVisible", config.SCREENSHOT_DIR)
-        base_page.element.validar_elemento_no_visible(base_page.userdashboard.btnLogout, "verificarLogoutButtonNoVisible", config.SCREENSHOT_DIR)
+        base_page.element.validar_elemento_no_visible(base_page.userdashboard.labelDescriptionDashboard, "verificarDescripciónDashboardNoVisible", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.validar_elemento_no_visible(base_page.userdashboard.btnLogout, "verificarLogoutButtonNoVisible", base_page.SCREENSHOT_BASE_DIR)
         
         
     except Exception as e:

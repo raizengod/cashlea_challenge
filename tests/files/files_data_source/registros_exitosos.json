@@ -88,5 +88,14 @@
         "password": "1_Hmegy*(!2B",
         "confirmar_password": "1_Hmegy*(!2B",
         "tipo_dato": "Válido"
+    },
+    {
+        "username": "tsolera656",
+        "nombre": "Raimundo",
+        "apellido": "Guijarro",
+        "email": "pmanjon@gmail.com",
+        "password": "n^s4O8bE*z0m",
+        "confirmar_password": "n^s4O8bE*z0m",
+        "tipo_dato": "Válido"
     }
 ]
