@@ -97,5 +97,23 @@
         "password": "n^s4O8bE*z0m",
         "confirmar_password": "n^s4O8bE*z0m",
         "tipo_dato": "Válido"
+    },
+    {
+        "username": "nieves88161",
+        "nombre": "Alejo",
+        "apellido": "Tamarit",
+        "email": "guardiolaangel@yahoo.com",
+        "password": "NstFK(*u)5Ub",
+        "confirmar_password": "NstFK(*u)5Ub",
+        "tipo_dato": "Válido"
+    },
+    {
+        "username": "soniagabaldon497",
+        "nombre": "Apolinar",
+        "apellido": "Tomás",
+        "email": "oliverastecla@fabrica.com",
+        "password": "#8nPaoNb^7#U",
+        "confirmar_password": "#8nPaoNb^7#U",
+        "tipo_dato": "Válido"
     }
 ]
