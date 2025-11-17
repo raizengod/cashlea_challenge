@@ -100,8 +100,15 @@ def _handle_trello_reporting(item, report):
         except Exception as e:
             logger.critical(f"\n❌ ERROR CRÍTICO: Fallo al procesar el reporte Trello para '{item.nodeid}'. Fallo: {e}", exc_info=True)
             
-        # Limpiar el estado de fallo
-        del item._failed_report
+        # Limpiar el estado de fallo SOLO si este handler es el último activo.
+        # Si Jira está habilitado, Jira se encargará de la limpieza (porque se ejecuta después).
+        try:
+            if not getattr(config, 'JIRA_REPORTING_ENABLED', False):
+                if hasattr(item, '_failed_report'):
+                    del item._failed_report
+                    logger.debug("\n[HOOK-MAKER] item._failed_report eliminado por Trello (Jira deshabilitado).")
+        except Exception as e:
+            logger.debug(f"\n[HOOK-MAKER] No se pudo eliminar item._failed_report en Trello handler: {e}")
 
     # -----------------------------------------------------------------------------------
     # 2. LÓGICA DE ÉXITO (Mover a DONE)
@@ -297,8 +304,15 @@ def _handle_jira_reporting(item, report):
         except Exception as e:
             logger.critical(f"\n❌ ERROR CRÍTICO: Fallo al procesar el reporte Jira para '{item.nodeid}'. Fallo: {e}", exc_info=True)
 
-        # Limpiar el estado de fallo del item (esto es importante)
-        del item._failed_report
+        # Limpiar el estado de fallo del item (esto es importante).
+        # Jira se ejecuta después de Trello en el hook principal, por lo que si Jira se ejecutó
+        # podemos asumir que es el último handler activo y puede hacer la limpieza.
+        try:
+            if hasattr(item, '_failed_report'):
+                del item._failed_report
+                logger.debug("\n[HOOK-MAKER] item._failed_report eliminado por Jira handler.")
+        except Exception as e:
+            logger.debug(f"\n[HOOK-MAKER] No se pudo eliminar item._failed_report en Jira handler: {e}")
         # (La lógica de TRELLO_REPORTING_ENABLED ya está manejada en conftest.py)
 
     # -----------------------------------------------------------------------------------
