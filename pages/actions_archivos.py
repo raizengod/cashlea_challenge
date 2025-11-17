@@ -1435,3 +1435,280 @@ class FileActions:
         except Exception as e:
             self.logger.error(f"❌ {nombre_paso}: Ocurrió un error inesperado: {e}", exc_info=True)
             return False
+        
+    @allure.step("Modificando registro en archivo: '{file_path}'")
+    def modificar_registro(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any]) -> bool:
+        """
+        Modifica uno o varios campos (dato específico o datos completos) de un registro
+        en un archivo (CSV, JSON, XLSX) basado en una clave y valor.
+
+        Args:
+            file_path (str): Ruta completa al archivo.
+            clave_busqueda (str): Nombre de la columna/clave para buscar el registro.
+            valor_busqueda (Any): Valor que debe coincidir con la clave_busqueda.
+            nuevos_datos (Dict[str, Any]): Diccionario con los pares clave-valor a modificar.
+
+        Returns:
+            bool: True si el registro fue encontrado y modificado, False en caso contrario o error.
+        """
+        nombre_paso = f"Modificando registro en '{file_path}' donde {clave_busqueda}='{valor_busqueda}'"
+        self.registrar_paso(nombre_paso)
+        
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        try:
+            if file_extension == '.csv':
+                return self._modificar_registro_csv(file_path, clave_busqueda, valor_busqueda, nuevos_datos, nombre_paso)
+            elif file_extension == '.json':
+                return self._modificar_registro_json(file_path, clave_busqueda, valor_busqueda, nuevos_datos, nombre_paso)
+            elif file_extension in ['.xlsx', '.xls']:
+                return self._modificar_registro_excel(file_path, clave_busqueda, valor_busqueda, nuevos_datos, nombre_paso)
+            else:
+                self.logger.error(f"\n❌ {nombre_paso}: Tipo de archivo '{file_extension}' no soportado para modificación de registros.")
+                return False
+        except Exception as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error general durante la modificación. Detalles: {e}", exc_info=True)
+            return False
+
+    def _modificar_registro_csv(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any], nombre_paso: str) -> bool:
+        try:
+            with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                data = list(reader)
+                fieldnames = reader.fieldnames
+        except FileNotFoundError:
+            self.logger.error(f"\n❌ {nombre_paso}: Archivo CSV no encontrado.")
+            return False
+
+        registro_modificado = False
+        for row in data:
+            if row.get(clave_busqueda) == str(valor_busqueda):
+                for key, value in nuevos_datos.items():
+                    if key in row:
+                        row[key] = str(value)
+                registro_modificado = True
+                self.logger.info(f"\n✨ Registro encontrado y modificado.")
+
+        if not registro_modificado:
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para modificar.")
+            return False
+
+        try:
+            with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(data)
+            self.logger.info(f"✅ {nombre_paso}: Archivo CSV reescrito correctamente.")
+            return True
+        except IOError as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir CSV. Detalles: {e}", exc_info=True)
+            return False
+
+    def _modificar_registro_json(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any], nombre_paso: str) -> bool:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al leer o decodificar JSON. Detalles: {e}")
+            return False
+        
+        if not isinstance(data, list):
+            self.logger.error(f"\n❌ {nombre_paso}: El archivo JSON no es una lista de registros. No se puede modificar.")
+            return False
+
+        registro_modificado = False
+        for row in data:
+            # Comparamos directamente, JSON respeta tipos (a diferencia de CSV)
+            if row.get(clave_busqueda) == valor_busqueda:
+                for key, value in nuevos_datos.items():
+                    if key in row:
+                        row[key] = value
+                registro_modificado = True
+                self.logger.info(f"\n✨ Registro encontrado y modificado.")
+                
+        if not registro_modificado:
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para modificar.")
+            return False
+
+        try:
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=4)
+            self.logger.info(f"\n✅ {nombre_paso}: Archivo JSON reescrito correctamente.")
+            return True
+        except IOError as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir JSON. Detalles: {e}", exc_info=True)
+            return False
+    
+    def _modificar_registro_excel(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any], nombre_paso: str) -> bool:
+        try:
+            # Usamos Pandas para la manipulación sencilla de Excel
+            df = pd.read_excel(file_path)
+        except (FileNotFoundError, Exception) as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al leer archivo Excel con pandas: {e}", exc_info=True)
+            return False
+        
+        # Identifica las filas a modificar (convertimos a str para comparación robusta)
+        filas_a_modificar = df[df[clave_busqueda].astype(str) == str(valor_busqueda)].index
+        
+        if filas_a_modificar.empty:
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para modificar en Excel.")
+            return False
+        
+        # Aplica las modificaciones
+        for key, value in nuevos_datos.items():
+            if key in df.columns:
+                df.loc[filas_a_modificar, key] = value
+                self.logger.info(f"\n✨ Columna '{key}' modificada en {len(filas_a_modificar)} registro(s).")
+            else:
+                self.logger.warning(f"\n⚠️ Columna '{key}' a modificar no existe en el archivo Excel.")
+        
+        # Reescribe el archivo Excel
+        try:
+            df.to_excel(file_path, index=False) # index=False para no escribir el índice de pandas
+            self.logger.info(f"\n✅ {nombre_paso}: Archivo Excel reescrito correctamente con las modificaciones.")
+            return True
+        except Exception as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir archivo Excel. Detalles: {e}", exc_info=True)
+            return False
+
+    @allure.step("Eliminando registro en archivo: '{file_path}'")
+    def eliminar_registro(self, file_path: str, clave_busqueda: str, valor_busqueda: Any) -> bool:
+        """
+        Elimina un registro específico en un archivo (CSV, JSON, XLSX) basado en una clave y valor.
+
+        Args:
+            file_path (str): Ruta completa al archivo.
+            clave_busqueda (str): Nombre de la columna/clave para buscar el registro a eliminar.
+            valor_busqueda (Any): Valor que debe coincidir con la clave_busqueda.
+
+        Returns:
+            bool: True si el registro fue eliminado, False en caso contrario o error.
+        """
+        nombre_paso = f"Eliminando registro en '{file_path}' donde {clave_busqueda}='{valor_busqueda}'"
+        self.registrar_paso(nombre_paso)
+        
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        try:
+            if file_extension == '.csv':
+                return self._eliminar_registro_csv(file_path, clave_busqueda, valor_busqueda, nombre_paso)
+            elif file_extension == '.json':
+                return self._eliminar_registro_json(file_path, clave_busqueda, valor_busqueda, nombre_paso)
+            elif file_extension in ['.xlsx', '.xls']:
+                return self._eliminar_registro_excel(file_path, clave_busqueda, valor_busqueda, nombre_paso)
+            else:
+                self.logger.error(f"\n❌ {nombre_paso}: Tipo de archivo '{file_extension}' no soportado para eliminación de registros.")
+                return False
+        except Exception as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error general durante la eliminación. Detalles: {e}", exc_info=True)
+            return False
+
+    def _eliminar_registro_csv(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nombre_paso: str) -> bool:
+        try:
+            with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                data_original = list(reader)
+                fieldnames = reader.fieldnames
+        except FileNotFoundError:
+            self.logger.error(f"\n❌ {nombre_paso}: Archivo CSV no encontrado.")
+            return False
+        
+        nueva_data = [
+            row for row in data_original if row.get(clave_busqueda) != str(valor_busqueda)
+        ]
+
+        if len(nueva_data) == len(data_original):
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para eliminar.")
+            return False
+        
+        try:
+            with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(nueva_data)
+            self.logger.info(f"\n✅ {nombre_paso}: Registro(s) eliminado(s) y archivo CSV reescrito correctamente.")
+            return True
+        except IOError as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir CSV. Detalles: {e}", exc_info=True)
+            return False
+
+    def _eliminar_registro_json(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nombre_paso: str) -> bool:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data_original = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al leer o decodificar JSON. Detalles: {e}")
+            return False
+        
+        if not isinstance(data_original, list):
+            self.logger.error(f"\n❌ {nombre_paso}: El archivo JSON no es una lista de registros. No se puede eliminar.")
+            return False
+
+        nueva_data = [
+            row for row in data_original if row.get(clave_busqueda) != valor_busqueda
+        ]
+        
+        if len(nueva_data) == len(data_original):
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para eliminar.")
+            return False
+
+        try:
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(nueva_data, file, indent=4)
+            self.logger.info(f"\n✅ {nombre_paso}: Registro(s) eliminado(s) y archivo JSON reescrito correctamente.")
+            return True
+        except IOError as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir JSON. Detalles: {e}", exc_info=True)
+            return False
+            
+    def _eliminar_registro_excel(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nombre_paso: str) -> bool:
+        try:
+            df = pd.read_excel(file_path)
+        except (FileNotFoundError, Exception) as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al leer archivo Excel con pandas: {e}", exc_info=True)
+            return False
+        
+        df_original_len = len(df)
+        
+        # Filtra la data: mantiene solo las filas donde el valor NO coincide.
+        df_filtrado = df[df[clave_busqueda].astype(str) != str(valor_busqueda)]
+        
+        if len(df_filtrado) == df_original_len:
+            self.logger.warning(f"\n⚠️ {nombre_paso}: No se encontró registro para eliminar en Excel.")
+            return False
+        
+        registros_eliminados = df_original_len - len(df_filtrado)
+        
+        try:
+            df_filtrado.to_excel(file_path, index=False)
+            self.logger.info(f"\n✅ {nombre_paso}: {registros_eliminados} registro(s) eliminado(s) y archivo Excel reescrito correctamente.")
+            return True
+        except Exception as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al reescribir archivo Excel. Detalles: {e}", exc_info=True)
+            return False
+
+    @allure.step("Borrando archivo: '{file_path}'")
+    def borrar_archivo(self, file_path: str) -> bool:
+        """
+        Elimina un archivo del sistema operativo si existe (función de 'eliminar archivo').
+
+        Args:
+            file_path (str): Ruta completa al archivo a borrar.
+
+        Returns:
+            bool: True si el archivo fue borrado o no existía, False si hubo un error.
+        """
+        nombre_paso = f"Borrando archivo en: '{file_path}'"
+        self.registrar_paso(nombre_paso)
+        
+        if not os.path.exists(file_path):
+            self.logger.info(f"\nℹ️ {nombre_paso}: Archivo no encontrado. No es necesario borrarlo.")
+            return True
+        
+        try:
+            os.remove(file_path)
+            self.logger.info(f"\n✅ {nombre_paso}: Archivo borrado exitosamente.")
+            return True
+        except OSError as e:
+            self.logger.error(f"\n❌ {nombre_paso}: Error al borrar el archivo. (Permisos, archivo en uso). Detalles: {e}", exc_info=True)
+            return False
