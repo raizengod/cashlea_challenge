@@ -2,11 +2,13 @@ import re
 import time
 import random
 import pytest
+import allure
 import os
 import json
-from playwright.sync_api import Page, expect, Playwright, sync_playwright
-from pages.base_page import BasePage
+from playwright.sync_api import Page, expect, Playwright, sync_playwright, Locator
+from pages.base_page import BasePage 
 from utils import config
+from typing import Dict, Any, List, Tuple 
 from utils.generador_datos import GeneradorDatos
 
 # Crea una instancia del generador de datos
@@ -38,12 +40,12 @@ def test_verificar_elementos_requeridos_presentes_register(set_up_RegisterPage: 
     base_page = set_up_RegisterPage
     
     # PASO 1: Desplazamiento hasta el elemento principal de la página.
-    base_page.scroll_hasta_elemento(base_page.register.labelRegister, "scroll_HastaLabelRegister", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelRegister, "scroll_HastaLabelRegister", config.SCREENSHOT_DIR)
     
     # PASO 2 y 3: Validar título y descripción de la página.
     base_page.element.verificar_texto_exacto(base_page.register.labelRegister, 
                                             "Test Register page for Automation Testing Practice",
-                                            "verificar_textoExactoLabelTitulo", base_page.SCREENSHOT_BASE_DIR)
+                                            "verificar_textoExactoLabelTitulo", config.SCREENSHOT_DIR)
     
     texto_descripcion_esperado = (
         """Test Register page""")
@@ -53,19 +55,19 @@ def test_verificar_elementos_requeridos_presentes_register(set_up_RegisterPage: 
     
     # PASO 4, 5: Validar visibilidad de todos los elementos del formulario y el botón.
     # Username
-    base_page.element.validar_elemento_visible(base_page.register.labelUsernameRegister, "verificarLabelUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.register.txtUsernameRegister, "verificarCampoUsernameVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.labelUsernameRegister, "verificarLabelUsernameVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.txtUsernameRegister, "verificarCampoUsernameVisible", config.SCREENSHOT_DIR)
     # Password
-    base_page.element.validar_elemento_visible(base_page.register.labelPasswordRegister, "verificarLabelPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.register.txtPasswordRegister, "verificarCampoPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.labelPasswordRegister, "verificarLabelPasswordVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.txtPasswordRegister, "verificarCampoPasswordVisible", config.SCREENSHOT_DIR)
     # Confirm Password
-    base_page.element.validar_elemento_visible(base_page.register.labelConfirmPasswordRegister, "verificarLabelConfirmPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.register.txtConnfirPasswordRegister, "verificarCampoConfirmPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.labelConfirmPasswordRegister, "verificarLabelConfirmPasswordVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.txtConnfirPasswordRegister, "verificarCampoConfirmPasswordVisible", config.SCREENSHOT_DIR)
     # Botón de Registro
-    base_page.element.validar_elemento_visible(base_page.register.btnRegister, "verificarBotónRegisterVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.btnRegister, "verificarBotónRegisterVisible", config.SCREENSHOT_DIR)
     
     # PASO 6: Validar que el mensaje de feedback (flash message) no está visible inicialmente.
-    base_page.element.validar_elemento_no_visible(base_page.register.flashMessage, "verificarMensajeFlashNoVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.register.flashMessage, "verificarMensajeFlashNoVisible", config.SCREENSHOT_DIR)
     
     
 def test_registrar_usuario_exitoso(set_up_RegisterPage: BasePage) -> None:
@@ -97,13 +99,13 @@ def test_registrar_usuario_exitoso(set_up_RegisterPage: BasePage) -> None:
     datos_usuario = generador_datos.generar_usuario_valido()
     
     # PASO 2: Rellenar el formulario de registro con datos válidos.
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, datos_usuario["confirmar_password"], "escribir_campoConfirmarPassword", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, datos_usuario["confirmar_password"], "escribir_campoConfirmarPassword", config.SCREENSHOT_DIR)
     
     # PASO 3: Ejecutar la acción de registro.
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "clic_botonRegister", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "clic_botonRegister", config.SCREENSHOT_DIR)
     
     # PASO 4: Validar la redirección automática a la URL de Login.
     base_page.navigation.validar_url_actual(config.LOGIN_URL)
@@ -111,7 +113,7 @@ def test_registrar_usuario_exitoso(set_up_RegisterPage: BasePage) -> None:
     # PASO 5: Validar el mensaje de éxito del registro (Flash Message).
     base_page.element.verificar_texto_contenido(base_page.register.flashMessage, 
                                                 "Successfully registered, you can log in now.", 
-                                                "validar_mensajeRegistroExitoso", base_page.SCREENSHOT_BASE_DIR)
+                                                "validar_mensajeRegistroExitoso", config.SCREENSHOT_DIR)
     
     # PASO 6: Persistir los datos del usuario en archivos para su uso posterior (e.g., Login).
     
@@ -207,20 +209,20 @@ def test_registrar_username_existente(set_up_RegisterPage: BasePage) -> None:
         datos_usuario = random.choice(registros)
         
         # PASO 3: Rellenar el formulario de registro con el 'username' existente y contraseñas válidas.
-        base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+        base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
         
         # Uso del username existente
-        base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserNameExistente", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserNameExistente", config.SCREENSHOT_DIR)
         
         # Uso de contraseñas nuevas y válidas (no relacionadas con el usuario cargado)
-        base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario_nuevo["password"], "escribir_campoPassword", base_page.SCREENSHOT_BASE_DIR)
-        base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, datos_usuario_nuevo["confirmar_password"], "escribir_campoConfirmarPassword", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario_nuevo["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
+        base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, datos_usuario_nuevo["confirmar_password"], "escribir_campoConfirmarPassword", config.SCREENSHOT_DIR)
         
         # PASO 4: Ejecutar la acción de registro.
-        base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "clic_botonRegister", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "clic_botonRegister", config.SCREENSHOT_DIR)
         
         # PASO 5: Validar el mensaje de error de usuario ya registrado.
-        base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "Username is being used", "verificar_MensajeErrorUsernameExistente", base_page.SCREENSHOT_BASE_DIR)
+        base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "Username is being used", "verificar_MensajeErrorUsernameExistente", config.SCREENSHOT_DIR)
         
         # PASO 6: Validar que el usuario permanece en la misma pantalla de registro (no hay redirección).
         base_page.navigation.validar_url_actual(config.REGISTER_URL)
@@ -253,16 +255,16 @@ def test_registrar_usurio_con_campos_vacios(set_up_RegisterPage: BasePage) -> No
     base_page = set_up_RegisterPage
     
     # PASO 1: Validar que los campos están inicialmente vacíos (pre-condición).
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtUsernameRegister, "validar_UsernameVacio", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacio", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtUsernameRegister, "validar_UsernameVacio", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacio", config.SCREENSHOT_DIR)
     
     # PASO 2: Proceder con registro sin rellenar los campos.
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterCamposVacios", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterCamposVacios", config.SCREENSHOT_DIR)
     
     # PASO 3: Validar mensaje de error de campos requeridos.
-    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", config.SCREENSHOT_DIR)
     
     # PASO 4: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
@@ -296,21 +298,21 @@ def test_registrar_usurio_con_solo_username(set_up_RegisterPage: BasePage) -> No
     datos_usuario = generador_datos.generar_usuario_valido()
     
     # PASO 2: Rellenar únicamente el campo Username.
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", config.SCREENSHOT_DIR)
         
     # PASO 3: Validar que los campos Password y Confirm Password están vacíos (pre-condición/verificación).
-    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmPasswordVacio", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmPasswordVacio", config.SCREENSHOT_DIR)
     
     # PASO 4: Proceder con registro.
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterSoloUsername", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterSoloUsername", config.SCREENSHOT_DIR)
     
     # PASO 5: Validar que el valor introducido en Username se ha conservado.
-    base_page.element.verificar_valor_campo(base_page.register.txtUsernameRegister, datos_usuario["username"], "verificarUsenameConserveDato", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_valor_campo(base_page.register.txtUsernameRegister, datos_usuario["username"], "verificarUsenameConserveDato", config.SCREENSHOT_DIR)
     
     # PASO 6: Validar mensaje de error de campos requeridos.
-    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", config.SCREENSHOT_DIR)
     
     # PASO 7: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
@@ -346,28 +348,28 @@ def test_registrar_usuario_sin_confirm_password(set_up_RegisterPage: BasePage) -
     datos_usuario = generador_datos.generar_usuario_valido()
     
     # PASO 2: Rellenar los campos Username y Password.
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
         
     # PASO 3: Validar que el campo Confirm Password está vacío (pre-condición/verificación).
-    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmPasswordVacioAntesClick", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmPasswordVacioAntesClick", config.SCREENSHOT_DIR)
     
     # PASO 4: Proceder con registro.
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterSinConfirm", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterSinConfirm", config.SCREENSHOT_DIR)
     
     # PASO 5: Validar mensaje de error de campos requeridos.
-    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "All fields are required.", "verificar_MensajeErrorCamposVacios", config.SCREENSHOT_DIR)
     
     # PASO 6: Validar que los valores introducidos en Username y Password se han conservado.
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsernameDespuesClick", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_valor_campo(base_page.register.txtUsernameRegister, datos_usuario["username"], "verificarUsenameConserveDato", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsernameDespuesClick", config.SCREENSHOT_DIR)
+    base_page.element.verificar_valor_campo(base_page.register.txtUsernameRegister, datos_usuario["username"], "verificarUsenameConserveDato", config.SCREENSHOT_DIR)
     # NOTA: En muchos sistemas, la contraseña se borra después de un intento fallido o por diseño de seguridad. 
     # Aquí validamos si el campo de Password se ha vaciado o no, asumiendo que el campo de Password NO conserva el valor (es la práctica más segura).
-    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordSeVació", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordSeVació", config.SCREENSHOT_DIR)
     
     # PASO 7: Validar que el campo Confirm Password sigue vacío.
-    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacioFinal", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacioFinal", config.SCREENSHOT_DIR)
     
     # PASO 8: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
@@ -402,19 +404,19 @@ def test_registrar_usuario_con_password_y_confirm_password_diferentes(set_up_Reg
     diferenteConfirmacion = generador_datos.generar_password_segura()
     
     # PASO 2: Rellenar los campos Username, Password y Confirm Password (con el valor diferente).
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
     # Rellenar campo 'Username'
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtUsernameRegister, datos_usuario["username"], "escribir_campoUserName", config.SCREENSHOT_DIR)
     # Rellenar campo 'Password'
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtPasswordRegister, datos_usuario["password"], "escribir_campoPassword", config.SCREENSHOT_DIR)
     # Rellenar campo 'Confirm Password' con una contraseña diferente
-    base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, diferenteConfirmacion, "escribir_campoConfirmPasswordDiferente", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.register.txtConnfirPasswordRegister, diferenteConfirmacion, "escribir_campoConfirmPasswordDiferente", config.SCREENSHOT_DIR)
     
     # PASO 3: Proceder con registro.
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterConContrasenasDiferentes", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterConContrasenasDiferentes", config.SCREENSHOT_DIR)
     
     # PASO 4: Validar mensaje de error de que las contraseñas no coinciden.
-    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "Passwords do not match.", "verificar_MensajeErrorPasswordDirefrentes", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_contenido(base_page.register.flashMessage, "Passwords do not match.", "verificar_MensajeErrorPasswordDirefrentes", config.SCREENSHOT_DIR)
     
     # PASO 5: Validar que se permanece en la misma pantalla de registro.
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
@@ -443,19 +445,19 @@ def test_cerrar_mensaje_flash(set_up_RegisterPage: BasePage) -> None:
     # La fixture `set_up_RegisterPage` asegura la navegación exitosa a la página de Registro.
     base_page = set_up_RegisterPage
     
-    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtUsernameRegister, "validar_UsernameVacio", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacio", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.register.labelUsernameRegister, "scroll_HastaLabelUsername", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtUsernameRegister, "validar_UsernameVacio", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtPasswordRegister, "validar_PasswordVacio", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.register.txtConnfirPasswordRegister, "validar_ConfirmVacio", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterCamposVacios", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnRegister, "click_botonRegisterCamposVacios", config.SCREENSHOT_DIR)
     
     base_page.navigation.validar_url_actual(config.REGISTER_URL)
     
-    base_page.element.validar_elemento_visible(base_page.register.flashMessage, "verificar_MensajeFlashVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.register.flashMessage, "verificar_MensajeFlashVisible", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.register.btnCerrarFlashMessage, "clic_CerrarMensajeFlash", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.register.btnCerrarFlashMessage, "clic_CerrarMensajeFlash", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_no_visible(base_page.register.flashMessage, "verificar_MensajeFlashNoVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.register.flashMessage, "verificar_MensajeFlashNoVisible", config.SCREENSHOT_DIR)
     
     

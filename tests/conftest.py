@@ -19,11 +19,10 @@ from api_clients.trello_client import TrelloClient
 import inspect
 from utils.test_helpers import _registrar_paso_ejecutado, _buscar_evidencias_por_nombre_test, _obtener_video_evidencia
 from utils.report_handlers import _handle_trello_reporting, _handle_jira_reporting
-from locators.locator_obstaculoPantalla import ObstaculosLocators
 
 # Inicializar el logger con la configuración definida en config.py
 # El logger se usará a nivel de módulo
-logger = setup_logger(name='conftest', console_level=logging.INFO, file_level=logging.DEBUG, log_dir=config.LOGGER_BASE_DIR)
+logger = setup_logger(name='conftest', console_level=logging.INFO, file_level=logging.DEBUG, log_dir=config.LOGGER_DIR)
 
 # Función para generar IDs legibles
 def generar_ids_browser(param):
@@ -38,42 +37,6 @@ def generar_ids_browser(param):
         return f"{browser}-{device}"
     else:
         return f"{browser}-{resolution['width']}x{resolution['height']}"
-    
-def _obtener_id_y_nombre_corto(item):
-    """
-    Extrae el ID del test, priorizando marcadores Pytest/Allure, luego el docstring.
-    """
-    test_id = "NO_ID"
-    
-    # --- 1. INTENTO: OBTENER EL ID DESDE MARCADORES PYTEST/ALLURE ---
-    
-    # 1.1. Buscar un marcador custom 'test_id' (común en frameworks profesionales)
-    # Ejemplo de uso en el test: @pytest.mark.test_id("WI-T001")
-    test_id_marker = item.get_closest_marker('test_id') 
-    if test_id_marker and test_id_marker.args:
-        test_id = str(test_id_marker.args[0]).strip()
-
-    # 1.2. Si aún no se encontró, buscar marcadores Allure (ej. allure_id)
-    # Ejemplo de uso en el test: @allure.id("WI-T001")
-    if test_id == "NO_ID":
-        allure_id_marker = item.get_closest_marker('allure_id')
-        # Nota: El decorador @allure.id() se registra con 'allure_id'.
-        if allure_id_marker and allure_id_marker.args:
-             test_id = str(allure_id_marker.args[0]).strip()
-             
-    # --- 2. FALLBACK: OBTENER EL ID DESDE EL DOCSTRING ---
-    if test_id == "NO_ID":
-        docstring = inspect.getdoc(item.obj)
-        if docstring:
-            # Patrón para buscar el ID: [ID: XXX]
-            match_id = re.search(r'\[ID:\s*([^\]]+)\]', docstring)
-            if match_id:
-                test_id = match_id.group(1).strip()
-    
-    # Nombre corto de la función (sin parámetros)
-    test_name = item.name.split('[')[0] 
-
-    return test_id, test_name
 
 @pytest.fixture(
     scope="function",
@@ -152,42 +115,14 @@ def browser_context(playwright: Playwright, request, browser_instance):
     
     logger.info(f"\nConfigurando contexto para Navegador: {param['browser']} / Dispositivo: {device_name if device_name else f'{resolution['width']}x{resolution['height']}'}")
 
-    # 1. Obtener ID del Test (WI-Txxx) y Device String
-    test_id, _ = _obtener_id_y_nombre_corto(request.node) 
-    device_string = generar_ids_browser(param) # Ej: firefox-1920x1080
-    
-    # Nuevo nombre de directorio basado en el requisito: ID del test - device
-    dynamic_test_dir_name = f"{test_id}-{device_string}" # Ejemplo: WI-T001-firefox-1920x1080
-
-    logger.info(f"\nConfigurando contexto para Navegador: {param['browser']} / ID Test: {test_id}")
-    logger.info(f"\nNombre de directorio de evidencia: {dynamic_test_dir_name}")
-
-    # 1. Definir los directorios dinámicos, usando las bases de config.py
-    VIDEO_TEST_DIR = os.path.join(config.VIDEO_BASE_DIR, dynamic_test_dir_name)
-    TRACEVIEW_TEST_DIR = os.path.join(config.TRACEVIEW_BASE_DIR, dynamic_test_dir_name)
-    SCREENSHOT_TEST_DIR = os.path.join(config.SCREENSHOT_BASE_DIR, dynamic_test_dir_name)
-    LOGGER_TEST_DIR = os.path.join(config.LOGGER_BASE_DIR, dynamic_test_dir_name)
-    
-    # 2. Crear los directorios dinámicos para este test
-    try:
-        os.makedirs(VIDEO_TEST_DIR, exist_ok=True)
-        os.makedirs(TRACEVIEW_TEST_DIR, exist_ok=True)
-        os.makedirs(SCREENSHOT_TEST_DIR, exist_ok=True)
-        os.makedirs(LOGGER_TEST_DIR, exist_ok=True)
-        logger.info(f"\nDirectorios de evidencia creados en subcarpeta: reports/.../{dynamic_test_dir_name}")
-    except Exception as e:
-        logger.error(f"\n❌ Error al crear directorios de evidencia para '{dynamic_test_dir_name}': {e}", exc_info=False)
-
-
-    # --- 3. Configuración del Contexto de Playwright ---
+    # --- 2. Configuración del Contexto ---
     context_options = {
-    "record_video_dir": VIDEO_TEST_DIR, # ✅ Usa la variable local
-    # Mantener el tamaño de video para consistencia, aunque el viewport cambie
-    "record_video_size": {"width": 1920, "height": 1080} 
-}
-
-    logger.debug("\nCreando contexto de Playwright...")
+        "record_video_dir": config.VIDEO_DIR,
+        # Mantener el tamaño de video para consistencia, aunque el viewport cambie
+        "record_video_size": {"width": 1920, "height": 1080} 
+    }
     
+    logger.debug("\nCreando contexto de Playwright...")
     if device_name:
         device = playwright.devices[device_name]
         # **browser_instance** viene del fixture encadenado
@@ -200,21 +135,20 @@ def browser_context(playwright: Playwright, request, browser_instance):
         context = browser_instance.new_context(**context_options)
         logger.debug("\nContexto creado con opciones por defecto.")
 
-    # --- 4. Inicio de Tracing ---
+    # --- 3. Inicio de Tracing ---
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    trace_file_name = f"traceview_{current_time}_{dynamic_test_dir_name}.zip"
-    trace_path = os.path.join(TRACEVIEW_TEST_DIR, trace_file_name) # ¡CAMBIO: Directorio específico del test!
+    test_name_with_params = request.node.name 
+    safe_test_name = "".join(c if c.isalnum() or c in (' ', '_', '-') else '_' for c in test_name_with_params)
+
+    trace_file_name = f"traceview_{current_time}_{safe_test_name}.zip"
+    trace_path = os.path.join(config.TRACEVIEW_DIR, trace_file_name)
 
     context.tracing.start(screenshots=True, snapshots=True, sources=True)
     logger.debug(f"\nTracing iniciado. El archivo se guardará en: {trace_path}")
     
-    # Almacenar datos críticos en el objeto context para el Teardown posterior y fixtures encadenados
+    # Almacenar datos críticos en el objeto context para el Teardown posterior
     context._trace_path = trace_path
-    context._dynamic_test_dir_name = dynamic_test_dir_name # Usado para nombrar archivos
-    context._screenshot_dir = SCREENSHOT_TEST_DIR # Usado en playwright_page y base_page
-    context._video_dir = VIDEO_TEST_DIR # Usado en playwright_page
-    context._logger_dir = LOGGER_TEST_DIR # ¡CAMBIO CLAVE! Usado en el fixture base_page
+    context._safe_test_name = safe_test_name 
     
     yield context # Ceder el contexto al siguiente fixture (playwright_page)
 
@@ -228,29 +162,23 @@ def playwright_page(browser_context, request) -> Generator[Page, None, None]:
     """
     context = browser_context
     page = context.new_page()
-    
+
     logger.debug("\nCreando la instancia de Page.")
     
     yield page # Ejecutar la prueba
 
     # --- 5. Tareas de Cierre (Teardown) ---
     logger.info("\nIniciando Teardown final del fixture playwright_page...")
-    
-    # Recuperar datos críticos almacenados en browser_context
-    dynamic_test_dir_name = context._dynamic_test_dir_name
-    trace_path = context._trace_path
-    screenshot_dir = context._screenshot_dir # Recuperar el directorio específico
-    video_dir = context._video_dir # Recuperar el directorio específico
 
-    # Recuperar el ID del test (usado para el nombre de la captura final)
-    test_id = dynamic_test_dir_name.split('-')[0]
+    # Recuperar datos críticos almacenados en browser_context
+    safe_test_name = context._safe_test_name
+    trace_path = context._trace_path
 
     # Captura de pantalla de estado final para análisis de fallos
     if page:
         try:
-            # Usar solo el ID del test en el nombre del archivo, ya que el directorio ya tiene el device
-            screenshot_name = f"TEARDOWN_FINAL_STATE_{test_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png" 
-            screenshot_path = os.path.join(screenshot_dir, screenshot_name) 
+            screenshot_name = f"TEARDOWN_FINAL_STATE_{safe_test_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+            screenshot_path = os.path.join(config.SCREENSHOT_DIR, screenshot_name)
 
             # Tomar la captura de pantalla antes de cerrar cualquier recurso.
             page.screenshot(path=screenshot_path, full_page=True)
@@ -272,25 +200,32 @@ def playwright_page(browser_context, request) -> Generator[Page, None, None]:
     if page and page.video:
         try:
             video_path = page.video.path()
-            new_video_name = f"{dynamic_test_dir_name}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.webm"
-            new_video_path = os.path.join(video_dir, new_video_name) 
-
-            if os.path.exists(video_path):
+                
+            new_video_name = f"{safe_test_name}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.webm"
+            new_video_path = os.path.join(config.VIDEO_DIR, new_video_name)
+                
+            if os.path.exists(video_path): 
                 try:
                     os.rename(video_path, new_video_path)
                     logger.info(f"\n🎥 Video renombrado y guardado como: {new_video_path}")
                 except OSError as e:
                     logger.error(
                         f"\n❌ Error de sistema (OSError) al renombrar el video de '{video_path}' a '{new_video_path}'. "
-                        f"\nEsto puede ser debido a permisos o el archivo aún está en uso. Detalle: {e}", exc_info=True
+                        f"\nEsto puede ser debido a permisos o el archivo aún está en uso. Detalle: {e}", 
+                        exc_info=True
                     )
                 except Exception as e:
-                    logger.error(f"\n❌ Error inesperado al renombrar el video: {e}", exc_info=True)
+                    logger.error(
+                        f"\n❌ Error inesperado al renombrar el video de '{video_path}' a '{new_video_path}'. Detalle: {e}", 
+                        exc_info=True
+                    )
             else:
-                logger.warning(f"\nVideo file not found at expected temporary path: {video_path}")
-
+                logger.warning(
+                    f"\n⚠️ No se encontró el archivo de video temporal en la ruta esperada: {video_path}. "
+                    "Esto puede ocurrir si la prueba fue muy corta o falló antes de que Playwright pudiera escribir el archivo."
+                )
         except Exception as e:
-            logger.error(f"\nError al intentar manejar el archivo de video: {e}")
+            logger.error(f"\n❌ Error al intentar acceder o procesar la ruta del objeto video: {e}", exc_info=True)
                 
     logger.info("\nTeardown del fixture playwright_page finalizado.")
                 
@@ -301,28 +236,16 @@ def trello_client():
 
 # --- Fixture principal de la arquitectura ---
 @pytest.fixture(scope="function")
-def base_page(playwright_page: Page, request, browser_context):
+@allure.step("SETUP: Inicializando la BasePage y las Clases de Acciones")
+def base_page(playwright_page: Page, request) -> BasePage: 
     """
-    Fixture que crea y configura la instancia de BasePage, inyectando el 
-    directorio de logs específico del test y guardando el directorio de
-    screenshots en la instancia para uso posterior.
+    Fixture que inicializa la clase BasePage, pasándole el objeto 'page' de Playwright
+    y el objeto 'request' de Pytest para que pueda acceder a los fixtures del test.
     """
-    # El objeto `browser_context` (Playwright Context) contiene los directorios guardados
-    context = browser_context
-
-    # Obtener el directorio de logs específico del test
-    logger_dir_test = context._logger_dir
-    screenshot_dir_test = context._screenshot_dir
+    logger.debug("\nInicializando BasePage y pasando el objeto request.")
     
-    # Se pasa la página, el request.node y el directorio de logs al constructor de BasePage
-    page_instance = BasePage(
-        playwright_page, 
-        request.node, 
-        logger_dir=logger_dir_test, 
-        screenshot_dir=screenshot_dir_test
-    )
-
-    return page_instance
+    # IMPORTANTE: Pasamos el objeto request.node al constructor de BasePage
+    return BasePage(playwright_page, request.node)
 
 # --- Ejemplo de nuevos fixtures de pre-condición ---
 @pytest.fixture
@@ -349,13 +272,10 @@ def set_up_Home(base_page: BasePage) -> BasePage:
     """
     logger.info("SETUP: Ejecutando set_up_Home - Navegación y validación inicial.")
     
-    # Obtener el directorio específico para este test
-    SS_DIR = base_page.SCREENSHOT_BASE_DIR 
-    
     try:
         # Navega a la URL base
-        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", SS_DIR) # ¡Cambio de directorio!
-        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", SS_DIR) # ¡Cambio de directorio!
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR) # ¡Cambio de directorio!
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR) # ¡Cambio de directorio!
         logger.info("\nSETUP: set_up_Home completado con éxito.")
         # Retorna la instancia de BasePage para que el test pueda comenzar sus acciones.
         return base_page
@@ -388,13 +308,11 @@ def set_up_WebInputs(base_page: BasePage) -> BasePage:
         BasePage: La instancia de BasePage ya inicializada y configurada, posicionada
                   en la página 'Web Input Examples' lista para las pruebas.
     """
-    # Obtener el directorio específico para este test
-    SS_DIR = base_page.SCREENSHOT_BASE_DIR 
 
     logger.info("SETUP: Ejecutando set_up_WebInputs - Navegación y validación inicial.") 
     try: 
         # Navega a la URL Web Inputs
-        base_page.navigation.ir_a_url(config.WEBINPUT_URL, "ir_a_WebInput", SS_DIR) # ¡Cambio de directorio!
+        base_page.navigation.ir_a_url(config.WEBINPUT_URL, "ir_a_WebInput", config.SCREENSHOT_DIR) # ¡Cambio de directorio!
         # Maneja obstáculos en la página para asegurar que los elementos a testear no estén cubiertos. 
         base_page.element.manejar_obstaculos_en_pagina(ObstaculosLocators.LISTA_DE_OBSTACULOS) 
         # Valida que haya ingresado correctamente a la página 
@@ -428,20 +346,17 @@ def set_up_RegisterPage(base_page: BasePage) -> BasePage:
     Returns:
         BasePage: La instancia de BasePage inicializada y posicionada en la Página de Registro, 
                   lista para que el test comience.
-    """
-    # Obtener el directorio específico para este test
-    SS_DIR = base_page.SCREENSHOT_BASE_DIR 
-    
+    """    
     logger.info("SETUP: Ejecutando set_up_RegisterPage - Navegación y validación inicial.")
     try:
         # Navega a la URL base
-        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", SS_DIR)
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR)
     
-        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", SS_DIR)
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR)
         
         # Scroll y clic al enlace para ingresar a la página de Registro
-        base_page.scroll_hasta_elemento(base_page.home.linkTestRegister, "scroll_HastaRegisterPage", SS_DIR)
-        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestRegister, "clic_ingresarRegisterPage", SS_DIR)
+        base_page.scroll_hasta_elemento(base_page.home.linkTestRegister, "scroll_HastaRegisterPage", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestRegister, "clic_ingresarRegisterPage", config.SCREENSHOT_DIR)
         
         # Intenta cerrar cualquier obstáculo que pueda aparecer.
         # Esto asegura que los elementos principales de la página no estén cubiertos.
@@ -478,20 +393,17 @@ def set_up_LoginPage(base_page: BasePage) -> BasePage:
     Returns:
         BasePage: La instancia de BasePage inicializada y posicionada en la Página de Login, 
                   lista para que el test comience.
-    """
-    # Obtener el directorio específico para este test
-    SS_DIR = base_page.SCREENSHOT_BASE_DIR 
-    
+    """    
     logger.info("SETUP: Ejecutando set_up_LoginPage - Navegación y validación inicial.")
     try:
         # Navega a la URL base
-        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", SS_DIR)
+        base_page.navigation.ir_a_url(config.BASE_URL, "ir_a_Home", config.SCREENSHOT_DIR)
     
-        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", SS_DIR)
+        base_page.navigation.validar_titulo_de_web("Automation Testing Practice Website for QA and Developers | UI and API", "validar_nombreWeb", config.SCREENSHOT_DIR)
         
         # Scroll y clic al enlace para ingresar a la página de Registro
-        base_page.scroll_hasta_elemento(base_page.home.linkTestLogin, "scroll_HastaLoginPage", SS_DIR)
-        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_ingresarLoginPage", SS_DIR)
+        base_page.scroll_hasta_elemento(base_page.home.linkTestLogin, "scroll_HastaLoginPage", config.SCREENSHOT_DIR)
+        base_page.element.hacer_clic_en_elemento(base_page.home.linkTestLogin, "clic_ingresarLoginPage", config.SCREENSHOT_DIR)
         
         # Intenta cerrar cualquier obstáculo que pueda aparecer.
         # Esto asegura que los elementos principales de la página no estén cubiertos.

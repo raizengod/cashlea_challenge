@@ -5,9 +5,10 @@ import pytest
 import allure
 import os
 import json
-from playwright.sync_api import Page, expect, Playwright, sync_playwright
-from pages.base_page import BasePage
+from playwright.sync_api import Page, expect, Playwright, sync_playwright, Locator
+from pages.base_page import BasePage 
 from utils import config
+from typing import Dict, Any, List, Tuple 
 from utils.generador_datos import GeneradorDatos
 
 # Crea una instancia del generador de datos
@@ -45,11 +46,11 @@ def test_verificar_elementos_requeridos_presentes_web_inputs(set_up_WebInputs: B
     # Se asigna la instancia de BasePage a una variable local para mayor claridad.
     base_page = set_up_WebInputs
     
-    base_page.scroll_hasta_elemento(base_page.webinputs.labelTituloWebInput, "scroll_HastaLabelWebInput", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.labelTituloWebInput, "scroll_HastaLabelWebInput", config.SCREENSHOT_DIR)
     
     base_page.element.verificar_texto_exacto(base_page.webinputs.labelTituloWebInput, 
                                              "Web inputs page for Automation Testing Practice",
-                                             "verificar_textoExactoLabelTitulo", base_page.SCREENSHOT_BASE_DIR)
+                                             "verificar_textoExactoLabelTitulo", config.SCREENSHOT_DIR)
     
     texto_descripcion_esperado = (
         """Web inputs refer to the data or information provided by users through various input mechanisms on a website.
@@ -58,15 +59,15 @@ def test_verificar_elementos_requeridos_presentes_web_inputs(set_up_WebInputs: B
                                              "verificarTextoDescripciónWebInputs", base_page.SCREENSHOT_BASE_DIR
                                              )
     
-    base_page.element.validar_elemento_visible(base_page.webinputs.inputNumerico, "verificarCampoNuméricoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.webinputs.inputAlfabetico, "verificarCampoAlfabéticoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.webinputs.inputPassword, "verificarCampoPasswordVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_visible(base_page.webinputs.inputFecha, "verificarCampoFechaVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_visible(base_page.webinputs.inputNumerico, "verificarCampoNuméricoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.webinputs.inputAlfabetico, "verificarCampoAlfabéticoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.webinputs.inputPassword, "verificarCampoPasswordVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_visible(base_page.webinputs.inputFecha, "verificarCampoFechaVisible", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputNumerico, "verificarCampoNuméricoNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputAlfabetico, "verificarCampoAlfabéticoNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputPassword, "verificarCampoPasswordNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputFecha, "verificarCampoFechaNoVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputNumerico, "verificarCampoNuméricoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputAlfabetico, "verificarCampoAlfabéticoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputPassword, "verificarCampoPasswordNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputFecha, "verificarCampoFechaNoVisible", config.SCREENSHOT_DIR)
     
 @allure.id("WI-T002")
 @allure.title("[ID: WI-T002] Prueba la funcionalidad 'Display Inputs' con todos los campos de entrada vacíos.")
@@ -100,19 +101,19 @@ def test_display_inputs_vacios(set_up_WebInputs: BasePage) -> None:
     base_page = set_up_WebInputs
     
     # Nota: Se utiliza base_page.SCREENSHOT_BASE_DIR para la ruta dinámica
-    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputNumerico, "inputNuméricoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputAlfabetico, "inputAlfabéticoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputPassword, "inputPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputFecha, "inputFechaVacío", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputNumerico, "inputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputAlfabetico, "inputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputPassword, "inputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputFecha, "inputFechaVacío", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_vacio(base_page.webinputs.outputNumerico, "outputNuméricoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.outputAlfabetico, "outputAlfabéticoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.outputPassword, "outputPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.outputFecha, "outputFechaVacío", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.outputNumerico, "outputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.outputAlfabetico, "outputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.outputPassword, "outputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.outputFecha, "outputFechaVacío", config.SCREENSHOT_DIR)
     
 @allure.id("WI-T003")
 @allure.title("[ID: WI-T003] Prueba el flujo completo de transferencia de datos, validando que los campos de salida (output) reflejen exactamente los datos ingresados en los campos de entrada.")
@@ -155,21 +156,21 @@ def test_output_con_data(set_up_WebInputs: BasePage) -> None:
     password = generador_datos.generar_password_segura()
     fecha = generador_datos.generar_fecha_nacimiento()
     
-    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", config.SCREENSHOT_DIR)
     
-    base_page.scroll_hasta_elemento(base_page.webinputs.outputNumerico, "scroll_HastaCampoNumérico", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.outputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", config.SCREENSHOT_DIR)
     
 @allure.id("WI-T004")
 @allure.title("[ID: WI-T004] Prueba el ciclo completo de ingreso, visualización y limpieza de datos utilizando los botones 'Display Inputs' y 'Clear Inputs'.")
@@ -212,30 +213,30 @@ def test_validar_clear_display_botón(set_up_WebInputs: BasePage) -> None:
     password = generador_datos.generar_password_segura()
     fecha = generador_datos.generar_fecha_nacimiento()
     
-    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.rellenar_campo_numerico_positivo(base_page.webinputs.inputNumerico, numerico ,"ingresarDatoNumérico", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputAlfabetico, alfabetico ,"ingresarDatoAlfabético", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputPassword, password ,"ingresarDatoPassword", config.SCREENSHOT_DIR)
+    base_page.element.rellenar_campo_de_texto(base_page.webinputs.inputFecha, fecha ,"ingresarDatoFecha", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnDisplayInputs, "clic_botónDisplayInputs", config.SCREENSHOT_DIR)
     
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputNumerico, str(numerico), "verificarValorOutputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputAlfabetico, alfabetico, "verificarValorOutputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputPassword, password, "verificarValorOutputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.verificar_texto_exacto(base_page.webinputs.outputFecha, fecha, "verificarValorOutputFechaVacío", config.SCREENSHOT_DIR)
     
-    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnClearInputs, "clic_botónClearInputs", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.hacer_clic_en_elemento(base_page.webinputs.btnClearInputs, "clic_botónClearInputs", config.SCREENSHOT_DIR)
     
-    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", base_page.SCREENSHOT_BASE_DIR)
+    base_page.scroll_hasta_elemento(base_page.webinputs.inputNumerico, "scroll_HastaCampoNumérico", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputNumerico, "inputNuméricoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputAlfabetico, "inputAlfabéticoVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputPassword, "inputPasswordVacío", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_vacio(base_page.webinputs.inputFecha, "inputFechaVacío", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputNumerico, "inputNuméricoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputAlfabetico, "inputAlfabéticoVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputPassword, "inputPasswordVacío", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_vacio(base_page.webinputs.inputFecha, "inputFechaVacío", config.SCREENSHOT_DIR)
     
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputNumerico, "verificarCampoNuméricoNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputAlfabetico, "verificarCampoAlfabéticoNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputPassword, "verificarCampoPasswordNoVisible", base_page.SCREENSHOT_BASE_DIR)
-    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputFecha, "verificarCampoFechaNoVisible", base_page.SCREENSHOT_BASE_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputNumerico, "verificarCampoNuméricoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputAlfabetico, "verificarCampoAlfabéticoNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputPassword, "verificarCampoPasswordNoVisible", config.SCREENSHOT_DIR)
+    base_page.element.validar_elemento_no_visible(base_page.webinputs.outputFecha, "verificarCampoFechaNoVisible", config.SCREENSHOT_DIR)

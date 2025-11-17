@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import HTTPError, RequestException
 # Importar el logger y la función get_setting
 from utils.config import get_setting, FRAMEWORK_LOGGER, TRELLO_REPORTING_ENABLED
 # Necesario para obtener el nombre del archivo
@@ -173,34 +174,48 @@ class TrelloClient:
             return False
         
     # Para adjuntar archivos
-    def attach_file_to_card(self, card_id: str, file_path: str):
+    def attach_file_to_card(self, card_id: str, file_path: str) -> bool:
         """Adjunta un archivo local (screenshot, trace, video) a la tarjeta Trello especificada."""
         if not all([self.api_key, self.api_token, card_id, file_path]):
             trello_logger.error("\n❌ Faltan datos (ID de tarjeta, ruta del archivo o credenciales) para adjuntar archivo.")
             return False
 
         url = f"{self.base_url_cards}/{card_id}/attachments"
+        auth_data = self.auth
         
         try:
-            # 1. Preparar el archivo para la carga
-            with open(file_path, 'rb') as f:
-                # 'file' es el nombre de campo esperado por la API de Trello
-                files = {'file': (os.path.basename(file_path), f)}
+            trello_logger.info(f"\n⏳ Intentando adjuntar archivo: {os.path.basename(file_path)}...")
+            
+            with open(file_path, 'rb') as file:
+                files = {
+                    'file': (os.path.basename(file_path), file) 
+                }
                 
-                # 2. Enviar la solicitud POST
-                # La autenticación se pasa en 'data'
-                response = requests.post(url, data=self.auth, files=files)
-                response.raise_for_status()
+                # Intentar postear el archivo
+                response = requests.post(url, data=auth_data, files=files, timeout=30) 
+                response.raise_for_status() # Aquí lanza HTTPError si el código es 4xx/5xx
                 
-                trello_logger.info(f"\n📎 Archivo adjunto a la tarjeta {card_id} exitosamente: {os.path.basename(file_path)}")
-                return True
-
-        except FileNotFoundError:
-            trello_logger.error(f"\n❌ Error al adjuntar archivo: Archivo no encontrado en la ruta: {file_path}")
+            trello_logger.info(f"✅ Archivo adjuntado exitosamente: {os.path.basename(file_path)}")
+            return True
+        
+        except HTTPError as e:
+            # 🚨 GESTIÓN ESPECÍFICA: Si es 413, solo advertir y continuar.
+            if e.response.status_code == 413:
+                trello_logger.warning(
+                    f"⚠️ ADVERTENCIA (HTTP 413): No se pudo adjuntar '{os.path.basename(file_path)}'. "
+                    "El archivo excede el límite de tamaño de la API de Trello. Se omite."
+                )
+                return False # Archivo falló por tamaño, NO es un fallo fatal.
+            else:
+                # Otros errores HTTP (400, 401, 500, etc.) son críticos
+                trello_logger.error(f"❌ Error crítico HTTP al adjuntar archivo: {e}")
+                return False # Devuelve False para registrar el fallo en el reporte.
+                
+        except RequestException as e:
+            trello_logger.error(f"❌ Error de conexión al adjuntar archivo: {e}")
             return False
-        except requests.exceptions.RequestException as e:
-            error_details = response.text if 'response' in locals() else 'No se pudo obtener la respuesta HTTP.'
-            trello_logger.error(f"\n❌ Error al adjuntar archivo a la tarjeta Trello (ID: {card_id}): {e}. Detalles del API: {error_details}", exc_info=True)
+        except Exception as e:
+            trello_logger.error(f"❌ Error inesperado al adjuntar archivo: {e}")
             return False
         
     def attach_video_to_card(self, card_id: str, video_path: str):

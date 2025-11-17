@@ -17,6 +17,7 @@ from .actions_teclado import KeyboardActions
 from .actions_navegacion import NavigationActions
 
 from utils.logger import setup_logger
+from utils.config import LOGGER_DIR, SCREENSHOT_DIR
 
 # --- IMPORTACIÓN CRÍTICA: La función que queremos compartir ---
 from utils.test_helpers import _registrar_paso_ejecutado
@@ -37,33 +38,26 @@ class BasePage:
 
     #1- Creamos una función incial 'Constructor'-----ES IMPORTANTE TENER ESTE INICIADOR-----
     @allure.step("Inicializando el Page Object (BasePage) y sus módulos de acción") # 2. Decorador Allure
-    def __init__(self, page: Page, request_node, screenshot_dir: str, logger_dir: Optional[str] = None):
+    def __init__(self, page: Page, request_node):
         """
-        Inicializa la clase BasePage con un objeto Page de Playwright.
+        Inicializa la clase Funciones_Globales con un objeto Page de Playwright.
 
         Args:
-            page (Page): El objeto de página de Playwright.
-            request_node: El nodo de Pytest.
-            screenshot_dir (str): El directorio de screenshots específico del test (ID-device).
-            logger_dir (str, optional): El directorio de logs específico del test.
+            page (Page): El objeto de página de Playwright que representa la pestaña
+                         del navegador activa.
         """
         self.page = page
         self.logger = setup_logger(
             name='AutomationFramework', 
             console_level=logging.INFO, 
             file_level=logging.DEBUG, 
-            log_dir=logger_dir # Usa el directorio dinámico del logger
+            log_dir=LOGGER_DIR
         )
         self.request_node = request_node # Guarda el nodo de Pytest
         # Pasa la función de registro y el nodo a todas las clases de acción
         self.registrar_paso = lambda paso: _registrar_paso_ejecutado(paso, self.request_node)
         
-        # --- ASIGNACIÓN CRÍTICA DEL DIRECTORIO DE SCREENSHOTS ---
-        # Ahora self.SCREENSHOT_BASE_DIR contendrá la ruta reports/imagen/ID-device/
-        self.SCREENSHOT_BASE_DIR = screenshot_dir
-        self.logger.info(f"\n✅ SCREENSHOT_BASE_DIR configurado dinámicamente a: {self.SCREENSHOT_BASE_DIR}")
-        
-        self.logger.debug("\nDEBUG: Logger 'AutomationFramework' inicializado.")
+        self.logger.debug("DEBUG: Logger 'AutomationFramework' inicializado.")
         
         # --- Banderas para manejo de eventos de diálogo ---
         self._alerta_detectada = False
@@ -103,23 +97,23 @@ class BasePage:
     def tomar_captura(self, nombre_base, directorio):
         """
         Toma una captura de pantalla de la página y la guarda en el directorio especificado.
+        Por defecto, usa SCREENSHOT_DIR de config.py.
 
         Args:
             nombre_base (str): El nombre base para el archivo de la captura de pantalla.
-            directorio (str): El directorio donde se guardará la captura (debe ser el dinámico ID-device).
+            directorio (str): El directorio donde se guardará la captura. Por defecto, SCREENSHOT_DIR.
         """
         try:
-            # Aunque conftest.py crea el directorio, es mejor ser robusto.
             if not os.path.exists(directorio):
-                os.makedirs(directorio, exist_ok=True)
-                self.logger.info(f"\n Directorio creado para capturas de pantalla: {directorio}") 
+                os.makedirs(directorio)
+                self.logger.info(f"\n Directorio creado para capturas de pantalla: {directorio}") #
 
-            nombre_archivo = self._generar_nombre_archivo_con_timestamp(nombre_base)
-            ruta_completa = os.path.join(directorio, f"{nombre_archivo}.png")
-            self.page.screenshot(path=ruta_completa) 
-            self.logger.info(f"\n 📸 Captura de pantalla guardada en: {ruta_completa}") 
+            nombre_archivo = self._generar_nombre_archivo_con_timestamp(nombre_base) #
+            ruta_completa = os.path.join(directorio, f"{nombre_archivo}.png") # Cambiado a .png para mejor calidad
+            self.page.screenshot(path=ruta_completa) #
+            self.logger.info(f"\n 📸 Captura de pantalla guardada en: {ruta_completa}") #
         except Exception as e:
-            self.logger.error(f"\n ❌ Error al tomar captura de pantalla '{nombre_base}': {e}")
+            self.logger.error(f"\n ❌ Error al tomar captura de pantalla '{nombre_base}': {e}") #
         
     #4- unción basica para tiempo de espera que espera recibir el parametro tiempo
     #En caso de no pasar el tiempo por parametro, el mismo tendra un valor de medio segundo
