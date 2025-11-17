@@ -12,3 +12,5 @@ playwright_reporte*
 *.log
 environments
 reports
+credentials.json
+token.json
