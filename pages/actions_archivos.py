@@ -612,7 +612,7 @@ class FileActions:
 
         try:
             self.logger.info(f"\n⏳ Abriendo y leyendo el archivo CSV: '{archivo_csv_path}'...")
-            with open(archivo_csv_path, 'r', newline='', encoding='utf-8') as csvfile:
+            with open(archivo_csv_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
                 # Crea un objeto reader para iterar sobre las líneas del CSV, usando el delimitador especificado.
                 # 'newline=''' es crucial para evitar problemas con saltos de línea en diferentes SO.
                 # 'encoding='utf-8'' es una buena práctica para manejar caracteres especiales.
@@ -708,7 +708,7 @@ class FileActions:
             # --- Medición de rendimiento: Carga del archivo CSV y lectura de todas las filas ---
             start_time_load_csv = time.time()
             self.logger.info(f"\n⏳ Abriendo y leyendo todas las filas del archivo CSV: '{archivo_csv_path}'...")
-            with open(archivo_csv_path, 'r', newline='', encoding='utf-8') as csvfile:
+            with open(archivo_csv_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
                 csv_reader = csv.reader(csvfile, delimiter=delimiter)
                 rows = list(csv_reader) # Lee todas las filas del CSV en una lista de listas (cada sublista es una fila)
             end_time_load_csv = time.time()
@@ -791,7 +791,7 @@ class FileActions:
 
         try:
             self.logger.info(f"\n⏳ Abriendo y leyendo el archivo JSON: '{json_file_path}'...")
-            with open(json_file_path, 'r', encoding='utf-8') as file:
+            with open(json_file_path, 'r', encoding='utf-8-sig') as file:
                 # 'encoding='utf-8'' es una buena práctica para manejar caracteres especiales.
                 data_content = json.load(file) # Carga (parsea) el contenido del archivo JSON
             
@@ -851,7 +851,7 @@ class FileActions:
 
         try:
             self.logger.info(f"\n⏳ Abriendo y leyendo el archivo CSV: '{csv_file_path}'...")
-            with open(csv_file_path, mode='r', newline='', encoding='utf-8') as file:
+            with open(csv_file_path, mode='r', newline='', encoding='utf-8-sig') as file:
                 # csv.DictReader lee cada fila como un diccionario usando los encabezados como claves
                 reader = csv.DictReader(file)
                 # Convertimos el iterador en una lista de diccionarios
@@ -918,7 +918,7 @@ class FileActions:
             # Manejo para archivos CSV
             if excel_file_path.endswith('.csv'):
                 self.logger.info(f"\n⏳ Abriendo y leyendo el archivo CSV: '{excel_file_path}'...")
-                with open(excel_file_path, mode='r', newline='', encoding='utf-8') as file:
+                with open(excel_file_path, mode='r', newline='', encoding='utf-8-sig') as file:
                     reader = csv.reader(file)
                     start_row = 1
                     
@@ -1019,7 +1019,7 @@ class FileActions:
 
         try:
             self.logger.info(f"\n⏳ Abriendo y leyendo el archivo de texto: '{file_path}'...")
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, 'r', encoding='utf-8-sig') as file:
                 # 'encoding='utf-8'' es crucial para manejar correctamente una amplia gama de caracteres.
                 content = file.read() # Lee todo el contenido del archivo
             
@@ -1190,7 +1190,7 @@ class FileActions:
 
             # --- Medición de rendimiento: Escritura en el archivo ---
             self.logger.info(f"\n✍️ Escribiendo contenido en el archivo: '{file_path}'...")
-            with open(file_path, mode, encoding='utf-8') as file:
+            with open(file_path, mode, encoding='utf-8-sig') as file:
                 # `encoding='utf-8'` es crucial para manejar correctamente una amplia gama de caracteres
                 file.write(text_to_write)
             
@@ -1251,7 +1251,7 @@ class FileActions:
             if append:
                 # Comprueba si el archivo existe y tiene contenido
                 if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-                    with open(file_path, 'r', encoding='utf-8') as file:
+                    with open(file_path, 'r', encoding='utf-8-sig') as file:
                         existing_data = json.load(file)
                     
                     if isinstance(existing_data, list):
@@ -1278,7 +1278,7 @@ class FileActions:
 
             # --- Medición de rendimiento: Escritura en el archivo ---
             self.logger.info(f"\n✍️ Escribiendo contenido JSON en el archivo: '{file_path}'...")
-            with open(file_path, 'w', encoding='utf-8') as file:
+            with open(file_path, 'w', encoding='utf-8-sig') as file:
                 file.write(json_string)
             
             self.logger.info(f"\n✅ Contenido JSON {mode_action} exitosamente en '{file_path}'.")
@@ -1418,7 +1418,7 @@ class FileActions:
             mode = 'a' if append and os.path.exists(file_path) else 'w'
             write_header = not (append and os.path.exists(file_path))
 
-            with open(file_path, mode, newline='', encoding='utf-8') as file:
+            with open(file_path, mode, newline='', encoding='utf-8-sig') as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
 
                 if write_header:
@@ -1472,7 +1472,7 @@ class FileActions:
 
     def _modificar_registro_csv(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any], nombre_paso: str) -> bool:
         try:
-            with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+            with open(file_path, mode='r', newline='', encoding='utf-8-sig') as file:
                 reader = csv.DictReader(file)
                 data = list(reader)
                 fieldnames = reader.fieldnames
@@ -1494,7 +1494,7 @@ class FileActions:
             return False
 
         try:
-            with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+            with open(file_path, mode='w', newline='', encoding='utf-8-sig') as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(data)
@@ -1506,7 +1506,7 @@ class FileActions:
 
     def _modificar_registro_json(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nuevos_datos: Dict[str, Any], nombre_paso: str) -> bool:
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, 'r', encoding='utf-8-sig') as file:
                 data = json.load(file)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             self.logger.error(f"\n❌ {nombre_paso}: Error al leer o decodificar JSON. Detalles: {e}")
@@ -1531,7 +1531,7 @@ class FileActions:
             return False
 
         try:
-            with open(file_path, 'w', encoding='utf-8') as file:
+            with open(file_path, 'w', encoding='utf-8-sig') as file:
                 json.dump(data, file, indent=4)
             self.logger.info(f"\n✅ {nombre_paso}: Archivo JSON reescrito correctamente.")
             return True
@@ -1605,7 +1605,7 @@ class FileActions:
 
     def _eliminar_registro_csv(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nombre_paso: str) -> bool:
         try:
-            with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+            with open(file_path, mode='r', newline='', encoding='utf-8-sig') as file:
                 reader = csv.DictReader(file)
                 data_original = list(reader)
                 fieldnames = reader.fieldnames
@@ -1622,7 +1622,7 @@ class FileActions:
             return False
         
         try:
-            with open(file_path, mode='w', newline='', encoding='utf-8') as file:
+            with open(file_path, mode='w', newline='', encoding='utf-8-sig') as file:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(nueva_data)
@@ -1634,7 +1634,7 @@ class FileActions:
 
     def _eliminar_registro_json(self, file_path: str, clave_busqueda: str, valor_busqueda: Any, nombre_paso: str) -> bool:
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, 'r', encoding='utf-8-sig') as file:
                 data_original = json.load(file)
         except (FileNotFoundError, json.JSONDecodeError) as e:
             self.logger.error(f"\n❌ {nombre_paso}: Error al leer o decodificar JSON. Detalles: {e}")
@@ -1653,7 +1653,7 @@ class FileActions:
             return False
 
         try:
-            with open(file_path, 'w', encoding='utf-8') as file:
+            with open(file_path, 'w', encoding='utf-8-sig') as file:
                 json.dump(nueva_data, file, indent=4)
             self.logger.info(f"\n✅ {nombre_paso}: Registro(s) eliminado(s) y archivo JSON reescrito correctamente.")
             return True
